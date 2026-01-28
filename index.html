@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مبادرة وسم التراث الأردني | Wasm Initiative</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            // تم تغميق البني ليكون النص أوضح
+                            brown: '#3A2618', 
+                            // تم تفتيح الذهبي قليلاً للإشراق
+                            gold: '#D6A545', 
+                            // تم جعل الخلفية أقرب للأبيض (أوف وايت فاتح جداً) للوضوح
+                            cream: '#FCFCFA', 
+                            // لون داكن عميق للوضع الليلي
+                            dark: '#0F0F0F',
+                            // لون فاتح للنصوص في الوضع الليلي
+                            light: '#F3F4F6'
+                        }
+                    },
+                    fontFamily: {
+                        amiri: ['Amiri', 'serif'],
+                        cairo: ['Cairo', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@200;300;400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- Styles --- */
+        /* زيادة تباين الألوان الأساسية */
+        body { @apply bg-brand-cream text-brand-brown transition-colors duration-300; }
+        .dark body { @apply bg-brand-dark text-brand-light; }
+        
+        .pattern-bedouin {
+            background-image: radial-gradient(#D6A545 0.8px, transparent 0.8px);
+            background-size: 20px 20px;
+            opacity: 0.1; /* تخفيف النقش لزيادة وضوح المحتوى */
+        }
+
+        /* Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+
+        @keyframes scroll-text {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        .animate-ticker { animation: scroll-text 35s linear infinite; }
+        
+        .fade-out { animation: fadeOut 1s forwards; pointer-events: none; }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
+
+        /* Glass Effect - زيادة العتامة للوضوح */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(214, 165, 69, 0.2);
+            box-shadow: 0 4px 30px rgba(58, 38, 24, 0.05);
+        }
+        .dark .glass-panel {
+            background: rgba(20, 20, 20, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* 3D Flip */
+        .perspective { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+        .game-card.flipped .front { transform: rotateY(180deg); }
+        .game-card.flipped .back { transform: rotateY(0deg); }
+        .game-card .front, .game-card .back {
+            position: absolute; width: 100%; height: 100%;
+            backface-visibility: hidden; transition: transform 0.6s;
+            border-radius: 0.75rem; display: flex; align-items: center; justify-content: center;
+        }
+        .game-card .front { background: #3A2618; transform: rotateY(0deg); }
+        .game-card .back { background: #D6A545; transform: rotateY(180deg); }
+
+        /* Loading Dots */
+        .loading-dots:after {
+            content: ' .';
+            animation: dots 1s steps(5, end) infinite;
+        }
+        @keyframes dots {
+            0%, 20% { content: ' .'; }
+            40% { content: ' ..'; }
+            60% { content: ' ...'; }
+            80%, 100% { content: ''; }
+        }
+        
+        /* تحسينات إضافية للنصوص */
+        h1, h2, h3, h4, h5, h6 { letter-spacing: -0.02em; }
+        .text-shadow { text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body class="font-cairo m-0 p-0 overflow-x-hidden relative transition-colors duration-300 selection:bg-brand-gold selection:text-white">
+
+    <!-- Intro Screen -->
+    <div id="intro-screen" class="fixed inset-0 z-[100] bg-brand-brown flex flex-col items-center justify-center text-center transition-opacity duration-1000">
+        <div class="relative mb-8">
+            <div class="absolute inset-0 bg-brand-gold blur-3xl opacity-30 rounded-full animate-pulse"></div>
+            <div class="relative z-10 p-6 border-4 border-brand-gold/50 rounded-full bg-white/5 backdrop-blur-md">
+                <i data-lucide="fingerprint" class="w-24 h-24 text-brand-gold"></i>
+            </div>
+        </div>
+        <h1 class="text-7xl font-amiri font-bold text-white mb-4 animate-bounce drop-shadow-2xl">وســم</h1>
+        <p class="text-brand-light text-2xl tracking-[0.2em] font-light uppercase border-t border-b border-brand-gold/30 py-2 px-8">التراث الأردني.. هوية ومستقبل</p>
+    </div>
+
+    <!-- Admin Login Modal -->
+    <div id="login-modal" class="fixed inset-0 z-[70] bg-black/80 hidden items-center justify-center backdrop-blur-md p-4 transition-all">
+        <div class="bg-white dark:bg-brand-brown p-8 rounded-3xl w-full max-w-sm shadow-2xl border-t-8 border-brand-gold transform scale-100 transition-transform">
+            <h3 class="text-2xl font-bold text-center mb-6 text-brand-brown dark:text-brand-gold">دخول الإدارة</h3>
+            <input type="text" id="admin-id" placeholder="المعرف الخاص" class="w-full p-4 border-2 border-gray-100 dark:border-white/10 dark:bg-black/20 dark:text-white rounded-2xl mb-3 text-center focus:border-brand-gold focus:outline-none transition-colors font-bold text-lg">
+            <input type="password" id="admin-pass" placeholder="كلمة المرور" class="w-full p-4 border-2 border-gray-100 dark:border-white/10 dark:bg-black/20 dark:text-white rounded-2xl mb-4 text-center focus:border-brand-gold focus:outline-none transition-colors font-bold text-lg">
+            <button onclick="loginAdmin()" class="w-full bg-brand-brown text-white py-4 rounded-2xl font-bold mb-3 hover:bg-[#5d4a3a] transition-all shadow-lg hover:shadow-xl">دخول</button>
+            <button onclick="toggleModal('login-modal')" class="w-full text-gray-500 dark:text-gray-300 text-sm hover:text-brand-brown">إلغاء</button>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="admin-dashboard" class="fixed inset-0 z-[70] bg-brand-cream hidden flex-col overflow-y-auto">
+        <div class="bg-brand-brown p-4 flex justify-between items-center text-white shadow-lg sticky top-0 z-10">
+            <h2 class="text-xl font-bold flex items-center gap-3"><i data-lucide="lock" class="w-5 h-5 text-brand-gold"></i> وحدة التحكم الشاملة - وسم</h2>
+            <button onclick="logoutAdmin()" class="bg-red-500/20 hover:bg-red-600/40 text-red-100 px-6 py-2 rounded-xl text-sm font-bold transition-all border border-red-500/30">خروج</button>
+        </div>
+        <div class="flex flex-col md:flex-row flex-1">
+            <div class="w-full md:w-72 bg-white border-l border-brand-light p-6 gap-3 flex flex-row md:flex-col overflow-x-auto shadow-sm">
+                <button onclick="switchAdminTab('dashboard')" class="p-4 rounded-2xl text-right font-bold text-sm flex items-center gap-3 hover:bg-gray-50 transition-colors text-brand-brown"><i data-lucide="layout-dashboard" class="w-5 h-5 text-brand-gold"></i> الرئيسية</button>
+                <button onclick="switchAdminTab('opportunities')" class="p-4 rounded-2xl text-right font-bold text-sm flex items-center gap-3 hover:bg-gray-50 transition-colors text-brand-brown"><i data-lucide="calendar-plus" class="w-5 h-5 text-brand-gold"></i> إدارة الفرص</button>
+                <button onclick="switchAdminTab('ticker')" class="p-4 rounded-2xl text-right font-bold text-sm flex items-center gap-3 hover:bg-gray-50 transition-colors text-brand-brown"><i data-lucide="scroll-text" class="w-5 h-5 text-brand-gold"></i> الشريط العلوي</button>
+                <button onclick="switchAdminTab('messages')" class="p-4 rounded-2xl text-right font-bold text-sm flex items-center gap-3 hover:bg-gray-50 transition-colors text-brand-brown"><i data-lucide="inbox" class="w-5 h-5 text-brand-gold"></i> الرسائل</button>
+            </div>
+            <div class="flex-1 p-8 bg-gray-50 min-h-screen" id="admin-content-area">
+                <!-- Dashboard Tab -->
+                <div id="admin-tab-dashboard" class="animate-in fade-in zoom-in duration-300">
+                    <h3 class="text-3xl font-bold text-brand-brown mb-8 border-r-4 border-brand-gold pr-4">لوحة المعلومات</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 relative overflow-hidden group">
+                            <h3 class="text-gray-400 text-sm font-bold mb-2">المتطوعين الجدد</h3>
+                            <p class="text-5xl font-bold text-brand-brown" id="admin-msg-count">0</p>
+                        </div>
+                        <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 relative overflow-hidden group">
+                            <h3 class="text-gray-400 text-sm font-bold mb-2">الفعاليات النشطة</h3>
+                            <p class="text-5xl font-bold text-brand-gold" id="admin-event-count">3</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Opportunities Tab -->
+                <div id="admin-tab-opportunities" class="hidden animate-in fade-in zoom-in duration-300">
+                    <h3 class="text-3xl font-bold text-brand-brown mb-8 border-r-4 border-brand-gold pr-4">إدارة الفرص</h3>
+                    <div class="bg-white p-8 rounded-3xl shadow-md border border-brand-light mb-8">
+                        <h4 class="font-bold text-brand-gold mb-6 flex items-center gap-2 text-xl"><i data-lucide="plus-circle" class="w-6 h-6"></i> إضافة فرصة جديدة</h4>
+                        <form onsubmit="addEvent(event)" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <input type="text" id="new-event-title" placeholder="عنوان الفعالية" required class="p-4 border-2 rounded-2xl text-sm focus:border-brand-gold outline-none">
+                            <input type="text" id="new-event-date" placeholder="التاريخ (مثال: 15 أيار)" required class="p-4 border-2 rounded-2xl text-sm focus:border-brand-gold outline-none">
+                            <input type="text" id="new-event-loc" placeholder="الموقع" required class="p-4 border-2 rounded-2xl text-sm focus:border-brand-gold outline-none">
+                            <select id="new-event-type" class="p-4 border-2 rounded-2xl text-sm focus:border-brand-gold outline-none">
+                                <option value="ميداني">ميداني</option>
+                                <option value="أونلاين">أونلاين</option>
+                                <option value="ثقافي">ثقافي</option>
+                            </select>
+                            <button type="submit" class="md:col-span-2 bg-brand-gold text-brand-brown font-bold py-4 rounded-2xl hover:bg-[#b8860b] shadow-lg">نشر الفرصة</button>
+                        </form>
+                    </div>
+                    <div id="admin-events-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                </div>
+                <!-- Ticker Tab -->
+                <div id="admin-tab-ticker" class="hidden animate-in fade-in zoom-in duration-300">
+                    <h3 class="text-3xl font-bold text-brand-brown mb-8 border-r-4 border-brand-gold pr-4">تحرير الشريط العلوي</h3>
+                    <div class="bg-white p-8 rounded-3xl shadow-md border border-brand-light">
+                        <textarea id="ticker-input" class="w-full p-4 border-2 border-brand-light rounded-2xl mb-6 focus:outline-none focus:border-brand-gold h-32 text-lg"></textarea>
+                        <button onclick="updateTicker()" class="bg-brand-brown text-white px-8 py-3 rounded-xl font-bold hover:bg-[#5d4a3a] shadow-lg flex items-center gap-2"><i data-lucide="save" class="w-5 h-5"></i> حفظ التغييرات</button>
+                    </div>
+                </div>
+                <!-- Messages Tab -->
+                 <div id="admin-tab-messages" class="hidden animate-in fade-in zoom-in duration-300">
+                    <h3 class="text-3xl font-bold text-brand-brown mb-8 border-r-4 border-brand-gold pr-4">الرسائل الواردة</h3>
+                    <div id="admin-messages-list" class="space-y-4 text-center text-gray-400 py-10">لا توجد رسائل جديدة.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- News Ticker -->
+    <div class="bg-brand-brown text-brand-light text-sm py-3 overflow-hidden whitespace-nowrap relative z-50 border-b-2 border-brand-gold font-bold shadow-lg">
+        <div id="ticker-content" class="animate-ticker inline-block min-w-full text-center">
+            ✨ باب التطوع مفتوح الآن لموسم الصيف &nbsp;&nbsp;&nbsp; ✨ ورشة عمل "التوثيق الرقمي" تقام الأسبوع القادم في جرش &nbsp;&nbsp;&nbsp; ✨ انضموا لفريق "سفراء وسم" في الجامعات الأردنية
+        </div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="sticky top-0 z-40 bg-white/95 dark:bg-brand-dark/95 backdrop-blur-xl shadow-md border-b border-brand-light dark:border-white/10 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-24">
+                <div class="flex-shrink-0 flex items-center gap-3 group cursor-pointer" onclick="window.scrollTo(0,0)">
+                    <div class="w-12 h-12 bg-gray-50 dark:bg-white/10 border-2 border-brand-gold rounded-full flex items-center justify-center group-hover:bg-brand-gold transition-colors duration-300">
+                        <i data-lucide="fingerprint" class="h-6 w-6 text-brand-brown dark:text-white group-hover:text-white transition-colors"></i>
+                    </div>
+                    <div>
+                        <span class="font-amiri font-bold text-brand-brown dark:text-brand-gold text-2xl block leading-none transition-colors">وسم</span>
+                        <span class="text-[10px] text-gray-500 tracking-widest uppercase font-bold">Wasm Initiative</span>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center gap-6">
+                    <div class="flex space-x-2 space-x-reverse text-sm font-bold">
+                        <a href="#header" class="text-brand-brown dark:text-gray-300 hover:text-brand-gold px-3 py-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 transition-all">الرئيسية</a>
+                        <a href="#about" class="text-brand-brown dark:text-gray-300 hover:text-brand-gold px-3 py-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 transition-all">المبادرة</a>
+                        <a href="#governorates" class="text-brand-brown dark:text-gray-300 hover:text-brand-gold px-3 py-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 transition-all">المحافظات</a>
+                        <a href="#interactive" class="text-brand-brown dark:text-gray-300 hover:text-brand-gold px-3 py-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 transition-all">الواحة</a>
+                    </div>
+                    
+                    <button onclick="toggleDarkMode()" class="p-3 rounded-full bg-gray-50 dark:bg-white/10 border border-gray-200 dark:border-white/10 text-brand-brown dark:text-brand-gold hover:scale-110 transition-all shadow-sm">
+                        <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
+                        <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+                    </button>
+                    
+                    <a href="#register" class="bg-brand-gold text-white px-6 py-3 rounded-xl text-sm font-bold hover:bg-brand-brown transition-all shadow-md hover:shadow-lg transform hover:-translate-y-1">انضم إلينا</a>
+                </div>
+                <div class="-mr-2 flex md:hidden">
+                    <button type="button" class="inline-flex items-center justify-center p-2 rounded-md text-brand-brown dark:text-white" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
+                        <i data-lucide="menu" class="h-8 w-8"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="hidden md:hidden bg-white dark:bg-brand-dark border-t border-gray-200 absolute w-full shadow-xl" id="mobile-menu">
+            <div class="px-4 pt-4 pb-6 space-y-2 text-right">
+                <a href="#header" class="block px-4 py-3 rounded-xl text-base font-bold text-brand-brown dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/10">الرئيسية</a>
+                <a href="#interactive" class="block px-4 py-3 rounded-xl text-base font-bold text-brand-brown dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/10">واحة وسم</a>
+                <button onclick="toggleDarkMode()" class="block w-full text-right px-4 py-3 rounded-xl text-base font-bold text-brand-brown dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/10">تبديل الإضاءة</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div id="main-content" class="max-w-7xl mx-auto bg-white dark:bg-brand-dark shadow-2xl rounded-[3rem] overflow-hidden border border-brand-light dark:border-white/10 my-8 md:my-12 opacity-0 transition-opacity duration-1000 relative z-10 min-h-screen">
+        
+        <!-- Hero Section -->
+        <div id="header" class="bg-gradient-to-b from-[#3A2618] to-[#1a100a] text-brand-gold pt-24 pb-20 px-12 text-center relative overflow-hidden">
+            <div class="absolute inset-0 pattern-bg opacity-20"></div>
+            <div class="absolute top-0 right-0 w-64 h-64 bg-brand-gold opacity-5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
+            <div class="absolute bottom-0 left-0 w-48 h-48 bg-brand-gold opacity-5 rounded-full translate-y-1/2 -translate-x-1/2 blur-2xl"></div>
+            
+            <div class="relative z-10 flex flex-col items-center justify-center animate-float">
+                <div class="mb-8 p-6 border-4 border-brand-gold/50 rounded-full bg-white/5 backdrop-blur-sm shadow-2xl">
+                    <i data-lucide="fingerprint" class="w-24 h-24 text-brand-gold drop-shadow-lg"></i>
+                </div>
+                
+                <h1 class="text-6xl md:text-8xl font-amiri font-bold text-brand-gold mb-2 tracking-wide drop-shadow-lg">وســم</h1>
+                <p class="text-lg md:text-xl font-light tracking-widest text-brand-light opacity-80 mb-6 uppercase">Wasm Initiative</p>
+                <div class="flex items-center gap-4 justify-center text-brand-light opacity-90">
+                    <span class="h-[2px] w-12 bg-brand-gold"></span>
+                    <span class="w-2 h-2 rotate-45 bg-brand-gold"></span>
+                    <h2 class="text-2xl md:text-3xl font-light tracking-widest uppercase">التراث الأردني</h2>
+                    <span class="w-2 h-2 rotate-45 bg-brand-gold"></span>
+                    <span class="h-[2px] w-12 bg-brand-gold"></span>
+                </div>
+                 <p class="mt-4 text-brand-light/60 text-xs md:text-sm tracking-wider font-light uppercase">Jordanian Heritage</p>
+            </div>
+            
+             <a href="#about" class="absolute bottom-6 left-1/2 transform -translate-x-1/2 animate-bounce text-brand-gold hover:text-white transition-colors">
+                <i data-lucide="chevron-down" class="w-6 h-6"></i>
+            </a>
+        </div>
+
+        <div class="p-6 md:p-20 space-y-32 bg-brand-cream dark:bg-black/20 relative pattern-bedouin">
+            
+            <!-- About Section -->
+            <section id="about" class="glass-panel rounded-[2.5rem] p-12 md:p-16 text-center relative overflow-hidden border-t-8 border-brand-gold shadow-xl">
+                <div class="absolute top-0 right-0 p-12 opacity-5"><i data-lucide="quote" class="w-40 h-40 text-brand-brown dark:text-white"></i></div>
+                
+                <span class="text-brand-gold font-bold tracking-widest uppercase text-sm mb-2 block">من نحن</span>
+                <h3 class="text-4xl md:text-5xl font-bold text-brand-brown dark:text-white mb-10 relative inline-block">
+                    قصتنا ورؤيتنا
+                    <span class="absolute -bottom-2 right-0 w-1/2 h-1 bg-brand-gold rounded-full"></span>
+                </h3>
+                
+                <p class="text-xl md:text-2xl leading-loose text-gray-600 dark:text-gray-300 max-w-4xl mx-auto font-amiri text-justify md:text-center">
+                    "وسم" ليست مجرد مبادرة، بل هي رحلة عبر الزمن.. نغمس ريشتنا في محبرة التاريخ لنرسم مستقبل هويتنا. نسعى لأن يكون التراث الأردني حياً في كل بيت، ومسموعاً في كل منصة رقمية، بأسلوب يجمع بين عراقة الماضي وذكاء المستقبل.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
+                    <div class="bg-white dark:bg-white/5 p-6 rounded-2xl shadow-sm border border-brand-light dark:border-white/10 card-hover group">
+                        <div class="w-16 h-16 bg-gray-50 dark:bg-white/10 rounded-2xl flex items-center justify-center text-brand-gold mx-auto mb-6 text-3xl font-bold group-hover:bg-brand-gold group-hover:text-white transition-colors"><i data-lucide="eye" class="w-8 h-8"></i></div>
+                        <h4 class="text-2xl font-bold text-brand-brown dark:text-white mb-3">الرؤية</h4>
+                        <p class="text-gray-500 dark:text-gray-400 leading-relaxed">المرجع الأول لتوثيق الهوية الأردنية رقمياً وإبراز جمالياتها للعالم.</p>
+                    </div>
+                    <div class="bg-white dark:bg-white/5 p-6 rounded-2xl shadow-sm border border-brand-light dark:border-white/10 card-hover group">
+                         <div class="w-16 h-16 bg-gray-50 dark:bg-white/10 rounded-2xl flex items-center justify-center text-brand-gold mx-auto mb-6 text-3xl font-bold group-hover:bg-brand-gold group-hover:text-white transition-colors"><i data-lucide="book-open" class="w-8 h-8"></i></div>
+                        <h4 class="text-2xl font-bold text-brand-brown dark:text-white mb-3">الرسالة</h4>
+                        <p class="text-gray-500 dark:text-gray-400 leading-relaxed">تمكين الشباب وحماية التراث بأدوات عصرية ومحتوى إبداعي ملهم.</p>
+                    </div>
+                    <div class="bg-white dark:bg-white/5 p-6 rounded-2xl shadow-sm border border-brand-light dark:border-white/10 card-hover group">
+                         <div class="w-16 h-16 bg-gray-50 dark:bg-white/10 rounded-2xl flex items-center justify-center text-brand-gold mx-auto mb-6 text-3xl font-bold group-hover:bg-brand-gold group-hover:text-white transition-colors"><i data-lucide="target" class="w-8 h-8"></i></div>
+                        <h4 class="text-2xl font-bold text-brand-brown dark:text-white mb-3">الهدف</h4>
+                        <p class="text-gray-500 dark:text-gray-400 leading-relaxed">ترسيخ الهوية الوطنية، تعزيز السياحة، ودعم الاقتصاد المحلي.</p>
+                    </div>
+                </div>
+            </section>
+
+             <!-- Linguistic Analysis -->
+            <section>
+                <div class="flex items-center justify-center gap-3 mb-10 pb-4 border-b border-brand-gold/20">
+                    <i data-lucide="pen-tool" class="w-6 h-6 text-brand-gold"></i>
+                    <h3 class="text-3xl font-bold text-brand-brown dark:text-white">تحليل الاسم (وسم)</h3>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="flex flex-col items-center p-8 bg-brand-brown text-white rounded-3xl relative overflow-hidden group hover:-translate-y-2 transition-transform shadow-lg">
+                        <span class="text-7xl font-amiri font-bold mb-2 text-brand-gold">و</span>
+                        <h4 class="text-2xl font-bold mb-2">وَصل</h4>
+                        <p class="text-center text-sm font-light opacity-90">حلقة وصل بين عراقة الماضي وحداثة المستقبل.</p>
+                    </div>
+                    <div class="flex flex-col items-center p-8 bg-gradient-to-br from-brand-gold to-[#b08d55] text-white rounded-3xl relative overflow-hidden group hover:-translate-y-2 transition-transform shadow-lg">
+                        <span class="text-7xl font-amiri font-bold mb-2 text-brand-brown">سـ</span>
+                        <h4 class="text-2xl font-bold mb-2 text-brand-brown">سِمة</h4>
+                        <p class="text-center text-sm font-light opacity-90 text-brand-brown">السمة المميزة والبصمة الخاصة للهوية الأردنية.</p>
+                    </div>
+                    <div class="flex flex-col items-center p-8 bg-brand-brown text-white rounded-3xl relative overflow-hidden group hover:-translate-y-2 transition-transform shadow-lg">
+                        <span class="text-7xl font-amiri font-bold mb-2 text-brand-gold">ـم</span>
+                        <h4 class="text-2xl font-bold mb-2">مَوروث</h4>
+                        <p class="text-center text-sm font-light opacity-90">الموروث الحضاري والثقافي الذي نسعى لحفظه.</p>
+                    </div>
+                </div>
+            </section>
+
+             <!-- Colors & Fonts -->
+            <section class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <!-- Colors -->
+                <div class="bg-white dark:bg-white/5 p-8 rounded-3xl border border-brand-light dark:border-white/10 shadow-sm">
+                    <div class="flex items-center gap-2 mb-6">
+                        <i data-lucide="palette" class="w-6 h-6 text-brand-gold"></i>
+                        <h3 class="text-2xl font-bold text-brand-brown dark:text-white">ألوان الهوية</h3>
+                    </div>
+                    <div class="flex gap-6 justify-center">
+                        <div class="text-center">
+                            <div class="w-20 h-20 bg-brand-brown rounded-full shadow-lg mx-auto mb-2 border-4 border-white"></div>
+                            <span class="text-sm font-bold text-brand-brown dark:text-white">بني داكن</span>
+                        </div>
+                        <div class="text-center">
+                            <div class="w-20 h-20 bg-brand-gold rounded-full shadow-lg mx-auto mb-2 border-4 border-white"></div>
+                            <span class="text-sm font-bold text-[#b8860b] dark:text-brand-gold">ذهبي</span>
+                        </div>
+                        <div class="text-center">
+                            <div class="w-20 h-20 bg-[#FDFBF7] rounded-full shadow-md mx-auto mb-2 border-4 border-gray-200"></div>
+                            <span class="text-sm font-bold text-gray-500 dark:text-gray-400">أوف وايت</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Fonts -->
+                <div class="bg-white dark:bg-white/5 p-8 rounded-3xl border border-brand-light dark:border-white/10 shadow-sm">
+                    <div class="flex items-center gap-2 mb-6">
+                        <i data-lucide="type" class="w-6 h-6 text-brand-gold"></i>
+                        <h3 class="text-2xl font-bold text-brand-brown dark:text-white">الخطوط</h3>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="bg-[#FAF8F5] dark:bg-white/5 p-4 rounded-xl border-r-4 border-brand-brown">
+                            <p class="font-amiri text-3xl text-brand-brown dark:text-white mb-1">خط أميري</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">للعناوين والعبارات التراثية</p>
+                        </div>
+                        <div class="bg-[#FAF8F5] dark:bg-white/5 p-4 rounded-xl border-r-4 border-brand-gold">
+                            <p class="font-cairo text-2xl text-brand-brown dark:text-white font-bold mb-1">خط كايرو</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">للنصوص الحديثة والرقمية</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stats -->
+            <section class="bg-brand-brown text-white rounded-3xl p-10 flex flex-wrap justify-around shadow-xl gap-8">
+                <div class="text-center">
+                    <h4 class="text-4xl font-bold text-brand-gold">+500</h4>
+                    <p class="text-xs opacity-70 uppercase tracking-widest mt-1">متطوع</p>
+                </div>
+                <div class="text-center">
+                    <h4 class="text-4xl font-bold text-brand-gold">+50</h4>
+                    <p class="text-xs opacity-70 uppercase tracking-widest mt-1">فعالية</p>
+                </div>
+                <div class="text-center">
+                    <h4 class="text-4xl font-bold text-brand-gold">+12</h4>
+                    <p class="text-xs opacity-70 uppercase tracking-widest mt-1">محافظة</p>
+                </div>
+                 <div class="text-center">
+                    <h4 class="text-4xl font-bold text-brand-gold">+1000</h4>
+                    <p class="text-xs opacity-70 uppercase tracking-widest mt-1">ساعة</p>
+                </div>
+            </section>
+
+            <!-- Partners Section -->
+            <section id="partners">
+                <div class="flex items-center justify-center gap-3 mb-10 pb-4">
+                    <i data-lucide="handshake" class="w-8 h-8 text-brand-gold"></i>
+                    <h3 class="text-4xl font-bold text-brand-brown dark:text-white">شركاء النجاح</h3>
+                </div>
+                <div class="flex flex-wrap justify-center gap-12 opacity-80" id="partners-list">
+                    <!-- Injected by JS -->
+                </div>
+            </section>
+
+            <!-- Team Section -->
+            <section id="team">
+                <div class="flex items-center gap-3 mb-10 border-b-2 border-brand-light dark:border-white/10 pb-6">
+                    <div class="p-3 bg-brand-brown rounded-xl text-white"><i data-lucide="users" class="w-6 h-6"></i></div>
+                    <h3 class="text-3xl font-bold text-brand-brown dark:text-white">فريق العمل</h3>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="team-list"></div>
+            </section>
+
+             <!-- Roadmap -->
+            <section id="roadmap">
+                <div class="flex items-center gap-3 mb-10 border-b-2 border-brand-light dark:border-white/10 pb-6">
+                    <div class="p-3 bg-brand-brown rounded-xl text-white"><i data-lucide="calendar" class="w-6 h-6"></i></div>
+                    <h3 class="text-3xl font-bold text-brand-brown dark:text-white">خارطة الطريق</h3>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4" id="roadmap-list"></div>
+            </section>
+
+            <!-- Governorates Section -->
+            <section id="governorates" class="scroll-mt-32">
+                <div class="text-center mb-12">
+                    <span class="text-brand-gold text-sm font-bold tracking-widest uppercase bg-white dark:bg-white/10 px-4 py-1 rounded-full border border-brand-light dark:border-white/10">اكتشف الأردن</span>
+                    <h3 class="text-4xl md:text-5xl font-bold text-brand-brown dark:text-white mt-4">كنوز المحافظات</h3>
+                </div>
+                
+                <div class="flex flex-wrap justify-center gap-3 mb-10" id="gov-filters">
+                    <button class="filter-btn active px-8 py-3 rounded-full text-sm font-bold transition-all bg-brand-brown text-white shadow-lg transform hover:scale-105" data-filter="all">الكل</button>
+                    <button class="filter-btn px-8 py-3 rounded-full text-sm font-bold transition-all bg-white dark:bg-white/10 border border-brand-light dark:border-white/10 text-brand-brown dark:text-white hover:bg-[#FAF8F5]" data-filter="north">إقليم الشمال</button>
+                    <button class="filter-btn px-8 py-3 rounded-full text-sm font-bold transition-all bg-white dark:bg-white/10 border border-brand-light dark:border-white/10 text-brand-brown dark:text-white hover:bg-[#FAF8F5]" data-filter="center">إقليم الوسط</button>
+                    <button class="filter-btn px-8 py-3 rounded-full text-sm font-bold transition-all bg-white dark:bg-white/10 border border-brand-light dark:border-white/10 text-brand-brown dark:text-white hover:bg-[#FAF8F5]" data-filter="south">إقليم الجنوب</button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="governorates-list">
+                    <!-- Cards will be injected via JS -->
+                </div>
+            </section>
+
+            <!-- Events -->
+            <section id="events">
+                <div class="text-center mb-12">
+                    <span class="text-brand-gold text-sm font-bold tracking-widest uppercase">شاركنا اللحظة</span>
+                    <h3 class="text-4xl font-bold text-brand-brown dark:text-white mt-2">أجندة الفعاليات</h3>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="events-list-display"></div>
+            </section>
+
+             <!-- Volunteer Journey -->
+            <section>
+                <div class="flex items-center gap-3 mb-10 border-b-2 border-brand-light dark:border-white/10 pb-6">
+                    <div class="p-3 bg-brand-brown rounded-xl text-white"><i data-lucide="history" class="w-6 h-6"></i></div>
+                    <h3 class="text-3xl font-bold text-brand-brown dark:text-white">رحلة المتطوع</h3>
+                </div>
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4 relative py-8" id="journey-list">
+                    <div class="hidden md:block absolute top-1/2 left-0 w-full h-1 bg-brand-light -z-10 -translate-y-1/2"></div>
+                </div>
+            </section>
+
+            <!-- Memberships -->
+            <section>
+                <div class="text-center mb-12">
+                    <h3 class="text-4xl font-bold text-brand-brown dark:text-white">أنواع العضوية</h3>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8" id="membership-list"></div>
+            </section>
+
+            <!-- ================= INTERACTIVE ZONE ================= -->
+            <div id="interactive" class="bg-gradient-to-br from-[#FAF8F5] to-white dark:from-[#2e2218] dark:to-[#3A2618] rounded-[3rem] p-8 md:p-20 border border-brand-light dark:border-white/10 shadow-2xl space-y-24 relative overflow-hidden scroll-mt-20">
+                <div class="absolute top-0 right-0 w-96 h-96 bg-brand-gold opacity-5 rounded-full blur-3xl"></div>
+                <div class="absolute bottom-0 left-0 w-96 h-96 bg-brand-brown opacity-5 rounded-full blur-3xl"></div>
+                
+                <div class="text-center relative z-10">
+                    <span class="bg-brand-gold/10 text-brand-gold px-6 py-2 rounded-full text-sm font-bold border border-brand-gold/20 shadow-sm">منطقتك الخاصة</span>
+                    <h2 class="text-5xl md:text-6xl font-amiri font-bold text-brand-brown dark:text-white mt-6 mb-4">واحة وسم التفاعلية</h2>
+                    <p class="text-gray-500 dark:text-gray-300 text-lg">اكتشف، العب، وشارك في التراث بأسلوب عصري</p>
+                </div>
+
+                <!-- Memory Game Section -->
+                <section class="text-center">
+                    <div class="mb-8">
+                         <div class="inline-block p-4 bg-[#FAF8F5] dark:bg-white/10 rounded-full mb-4 border border-brand-gold/30"><i data-lucide="gamepad-2" class="w-12 h-12 text-brand-gold"></i></div>
+                        <h3 class="text-3xl font-bold text-brand-brown dark:text-white">لعبة ذاكرة التراث</h3>
+                        <p class="text-gray-500 dark:text-gray-400 mt-2">طابق الصور التراثية واربح</p>
+                    </div>
+                    <div id="memory-game" class="grid grid-cols-4 gap-4 max-w-md mx-auto perspective"></div>
+                    <button onclick="initMemoryGame()" class="mt-8 bg-brand-brown text-white px-8 py-2 rounded-xl font-bold hover:bg-[#5d4a3a]">لعبة جديدة</button>
+                </section>
+
+                <!-- Digital Museum -->
+                <section>
+                    <div class="flex items-center justify-center mb-12 gap-3">
+                        <i data-lucide="award" class="text-brand-gold w-8 h-8"></i>
+                        <h3 class="text-3xl font-bold text-brand-brown dark:text-white">متحف وسم الرقمي</h3>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-6" id="museum-list"></div>
+                </section>
+                
+                <!-- Crafts & Dialect -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <section>
+                         <div class="flex items-center gap-3 mb-6 border-b border-brand-gold/20 pb-4">
+                            <i data-lucide="shopping-bag" class="w-6 h-6 text-brand-gold"></i>
+                            <h3 class="text-2xl font-bold text-brand-brown dark:text-white">سوق الحرفيين</h3>
+                        </div>
+                        <div class="grid grid-cols-1 gap-4" id="crafts-list"></div>
+                    </section>
+                    <section>
+                        <div class="flex items-center gap-3 mb-6 border-b border-brand-gold/20 pb-4">
+                            <i data-lucide="book" class="w-6 h-6 text-brand-gold"></i>
+                            <h3 class="text-2xl font-bold text-brand-brown dark:text-white">قاموس اللهجة</h3>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4" id="dialect-list"></div>
+                    </section>
+                </div>
+                
+                <!-- Proverbs -->
+                <section class="bg-brand-brown text-white rounded-[2.5rem] p-12 relative overflow-hidden text-center shadow-xl border-4 border-brand-gold/30">
+                    <div class="absolute top-0 right-0 p-8 opacity-10"><i data-lucide="quote" class="w-32 h-32"></i></div>
+                    <h3 class="text-3xl font-bold text-brand-gold mb-8">كنز الأمثال الشعبية</h3>
+                    <div class="min-h-[160px] flex flex-col justify-center items-center relative z-10 transition-all duration-500">
+                        <p id="proverb-text" class="text-3xl md:text-4xl font-amiri mb-6 leading-relaxed drop-shadow-md"></p>
+                        <div class="h-px w-32 bg-brand-gold/50 mb-6"></div>
+                        <p id="proverb-meaning" class="text-lg text-[#eaddcf] font-light bg-black/20 px-6 py-2 rounded-full"></p>
+                    </div>
+                    <div class="flex justify-center gap-6 mt-10 relative z-10">
+                        <button onclick="prevProverb()" class="p-4 rounded-full bg-white/10 hover:bg-brand-gold hover:text-brand-brown transition-all"><i data-lucide="chevron-right" class="w-6 h-6"></i></button>
+                        <button onclick="nextProverb()" class="px-8 py-3 rounded-full bg-brand-gold text-brand-brown font-bold hover:bg-white transition-all flex items-center gap-3 shadow-lg transform hover:scale-105"><i data-lucide="shuffle" class="w-5 h-5"></i> مثل جديد</button>
+                        <button onclick="nextProverb()" class="p-4 rounded-full bg-white/10 hover:bg-brand-gold hover:text-brand-brown transition-all"><i data-lucide="chevron-left" class="w-6 h-6"></i></button>
+                    </div>
+                </section>
+
+                <!-- Tools Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <!-- Name Story -->
+                    <div class="bg-white dark:bg-white/5 border border-brand-light dark:border-white/10 rounded-[2rem] p-10 shadow-lg hover:border-brand-gold transition-all group">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="p-4 bg-[#FAF8F5] dark:bg-white/10 rounded-2xl text-brand-gold"><i data-lucide="fingerprint" class="w-8 h-8"></i></div>
+                            <h3 class="text-2xl font-bold text-brand-brown dark:text-white">وسم الأسماء</h3>
+                        </div>
+                        <p class="text-gray-500 dark:text-gray-400 mb-6">اكتب اسمك وسنخبرك بقصته من وحي التراث.</p>
+                        <div class="flex gap-3 mb-6">
+                            <input type="text" id="visitor-name" placeholder="اكتب اسمك..." class="flex-1 p-4 border rounded-2xl text-sm focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold dark:bg-white/10 dark:text-white dark:border-white/20">
+                            <button onclick="generateNameStory()" class="bg-brand-brown text-white px-8 rounded-2xl text-sm font-bold hover:bg-[#5d4a3a] shadow-md">انسج ✨</button>
+                        </div>
+                        <div id="name-story-result" class="hidden bg-[#FAF8F5] dark:bg-white/5 p-6 rounded-2xl border border-brand-light dark:border-white/10 text-lg leading-loose font-amiri text-brand-brown dark:text-gray-200"></div>
+                    </div>
+
+                    <!-- Trip Planner -->
+                    <div class="bg-white dark:bg-white/5 border border-brand-light dark:border-white/10 rounded-[2rem] p-10 shadow-lg hover:border-brand-gold transition-all group">
+                         <div class="flex items-center gap-4 mb-6">
+                            <div class="p-4 bg-[#FAF8F5] dark:bg-white/10 rounded-2xl text-brand-gold"><i data-lucide="compass" class="w-8 h-8"></i></div>
+                            <h3 class="text-2xl font-bold text-brand-brown dark:text-white">مخطط الرحلات</h3>
+                        </div>
+                        <p class="text-gray-500 dark:text-gray-400 mb-6">خطط لرحلة لا تنسى في ربوع الأردن.</p>
+                        <div class="flex gap-3 mb-6">
+                            <select id="trip-city" class="flex-1 p-4 border rounded-2xl text-sm focus:outline-none focus:border-brand-gold dark:bg-white/10 dark:text-white dark:border-white/20"></select>
+                            <button onclick="generateTrip()" class="bg-brand-brown text-white px-8 rounded-2xl text-sm font-bold hover:bg-[#5d4a3a] shadow-md whitespace-nowrap">خطط ✨</button>
+                        </div>
+                        <div id="trip-result" class="hidden bg-[#FAF8F5] dark:bg-white/5 p-6 rounded-2xl border border-brand-light dark:border-white/10 text-sm leading-loose text-brand-brown dark:text-gray-200"></div>
+                    </div>
+
+                     <!-- Rababa Poet -->
+                    <div class="bg-white dark:bg-white/5 border border-brand-light dark:border-white/10 rounded-[2rem] p-10 shadow-lg hover:border-brand-gold transition-all group">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="p-4 bg-[#FAF8F5] dark:bg-white/10 rounded-2xl text-brand-gold"><i data-lucide="music" class="w-8 h-8"></i></div>
+                            <h3 class="text-2xl font-bold text-brand-brown dark:text-white">شاعر الربابة</h3>
+                        </div>
+                        <p class="text-gray-500 dark:text-gray-400 mb-6">اكتب موضوعاً وسأنظم لك أبياتاً نبطية.</p>
+                        <div class="flex gap-3 mb-6">
+                            <input type="text" id="poet-topic" placeholder="الموضوع..." class="flex-1 p-4 border rounded-2xl text-sm focus:outline-none focus:border-brand-gold dark:bg-white/10 dark:text-white dark:border-white/20">
+                            <button onclick="generatePoem()" class="bg-brand-brown text-white px-8 rounded-2xl text-sm font-bold hover:bg-[#5d4a3a] shadow-md">انظم ✨</button>
+                        </div>
+                        <div id="poet-result" class="hidden bg-[#FAF8F5] dark:bg-white/5 p-6 rounded-2xl border border-brand-light dark:border-white/10 text-lg leading-loose font-amiri text-brand-brown dark:text-gray-200"></div>
+                    </div>
+
+                    <!-- Wasm Kitchen -->
+                    <div class="bg-white dark:bg-white/5 border border-brand-light dark:border-white/10 rounded-[2rem] p-10 shadow-lg hover:border-brand-gold transition-all group">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="p-4 bg-[#FAF8F5] dark:bg-white/10 rounded-2xl text-brand-gold"><i data-lucide="utensils" class="w-8 h-8"></i></div>
+                            <h3 class="text-2xl font-bold text-brand-brown dark:text-white">مطبخ وسم</h3>
+                        </div>
+                        <p class="text-gray-500 dark:text-gray-400 mb-6">اكتب المكونات وسنقترح عليك طبقاً تراثياً.</p>
+                        <div class="flex gap-3 mb-6">
+                            <input type="text" id="kitchen-ing" placeholder="المكونات (جميد، لحم...)" class="flex-1 p-4 border rounded-2xl text-sm focus:outline-none focus:border-brand-gold dark:bg-white/10 dark:text-white dark:border-white/20">
+                            <button onclick="generateRecipe()" class="bg-brand-brown text-white px-8 rounded-2xl text-sm font-bold hover:bg-[#5d4a3a] shadow-md whitespace-nowrap">اطبخ ✨</button>
+                        </div>
+                        <div id="kitchen-result" class="hidden bg-[#FAF8F5] dark:bg-white/5 p-6 rounded-2xl border border-brand-light dark:border-white/10 text-sm leading-loose text-brand-brown dark:text-gray-200"></div>
+                    </div>
+                </div>
+
+                <!-- AI Nashmi -->
+                <div class="bg-gradient-to-br from-[#2e2218] to-[#4A3728] rounded-[2rem] p-10 text-white shadow-xl relative overflow-hidden group">
+                    <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-brand-gold opacity-10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="p-4 bg-brand-gold rounded-2xl text-[#2e2218] shadow-lg"><i data-lucide="message-square" class="w-8 h-8"></i></div>
+                            <div>
+                                <h3 class="text-2xl font-bold font-cairo">النشمي</h3>
+                                <p class="text-sm text-[#eaddcf]/80">مساعدك الذكي للتراث الأردني..</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-3 mb-6">
+                            <input type="text" id="hakawati-q" placeholder="اسأل النشمي عن التراث..." class="flex-1 bg-white/10 border border-brand-gold/30 rounded-2xl px-5 py-4 text-white focus:outline-none focus:bg-white/20 text-sm placeholder-white/40 backdrop-blur-sm">
+                            <button onclick="askHakawati()" class="bg-brand-gold text-[#2e2218] px-6 rounded-2xl font-bold hover:bg-white transition-colors text-sm shadow-lg">اسأل</button>
+                        </div>
+                        <div class="bg-black/20 rounded-2xl p-6 min-h-[100px] border border-white/5">
+                            <p id="hakawati-res" class="text-[#eaddcf] text-lg font-amiri leading-loose">أنا جاهز لأي سؤال يا نشمي...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quiz Section -->
+                <section class="bg-white border-2 border-brand-light dark:border-white/10 rounded-[2.5rem] p-10 text-center shadow-lg relative overflow-hidden">
+                    <div class="absolute top-0 w-full h-2 bg-gradient-to-r from-transparent via-brand-gold to-transparent"></div>
+                    <div id="quiz-container">
+                        <div class="mb-8">
+                            <div class="inline-block p-5 bg-[#FAF8F5] dark:bg-white/10 rounded-full mb-4 border border-brand-gold/30"><i data-lucide="award" class="w-16 h-16 text-brand-gold"></i></div>
+                            <h3 class="text-4xl font-bold text-brand-brown dark:text-white font-cairo">تحدي وسم</h3>
+                            <p class="text-gray-500 dark:text-gray-400 mt-2">اختبر معلوماتك واربح ألقاباً تراثية</p>
+                        </div>
+                        <div id="quiz-start">
+                            <button onclick="startQuiz()" class="bg-brand-brown text-white px-12 py-4 rounded-full font-bold shadow-xl hover:bg-[#5d4a3a] transition-all transform hover:scale-105 flex items-center gap-3 mx-auto text-lg">
+                                <i data-lucide="gamepad-2" class="w-6 h-6"></i> ابدأ التحدي
+                            </button>
+                        </div>
+                        <div id="quiz-question" class="hidden max-w-2xl mx-auto">
+                            <div class="mb-4 flex justify-between text-xs font-bold text-brand-gold uppercase tracking-widest">
+                                <span>السؤال الحالي</span>
+                                <span id="q-counter"></span>
+                            </div>
+                            <h4 id="q-text" class="text-2xl font-bold mb-8 text-brand-brown dark:text-white leading-normal font-amiri"></h4>
+                            <div id="q-options" class="space-y-4"></div>
+                        </div>
+                        <div id="quiz-result" class="hidden py-8">
+                            <div class="w-40 h-40 bg-brand-gold text-white rounded-full flex flex-col items-center justify-center mx-auto mb-6 shadow-2xl border-8 border-[#FAF8F5]">
+                                <span class="text-5xl font-bold" id="final-score"></span>
+                            </div>
+                            <h4 class="text-3xl font-bold mb-2 text-brand-brown dark:text-white">النتيجة النهائية</h4>
+                            <p id="final-title" class="text-2xl text-brand-gold font-bold mb-8 bg-[#FAF8F5] dark:bg-white/5 inline-block px-8 py-3 rounded-2xl border border-brand-light dark:border-white/10 mt-4"></p>
+                            <button onclick="resetQuiz()" class="text-brand-brown dark:text-white border-b-2 border-brand-brown dark:border-white font-bold hover:text-brand-gold hover:border-brand-gold transition-colors pb-1">إعادة المحاولة</button>
+                        </div>
+                    </div>
+                </section>
+                
+                 <!-- Creative Corner (Text Only) -->
+                <section class="bg-white border border-brand-light dark:border-white/10 rounded-[2.5rem] p-10 shadow-sm">
+                     <div class="flex items-center gap-4 mb-6">
+                       <i data-lucide="pen-tool" class="text-brand-gold w-8 h-8"></i>
+                       <h3 class="text-3xl font-bold text-brand-brown dark:text-white font-cairo">مساحة الإبداع</h3>
+                     </div>
+                     <p class="text-lg text-gray-600 dark:text-gray-400 mb-6">شاركنا بيتاً من الشعر أو خاطرة قصيرة في حب الأردن:</p>
+                     <textarea class="w-full p-6 bg-[#FAF8F5] dark:bg-white/5 border border-brand-light dark:border-white/10 rounded-2xl text-lg focus:outline-none focus:border-brand-gold resize-none h-40" placeholder="اكتب هنا..."></textarea>
+                     <button class="mt-6 bg-brand-brown text-white px-8 py-3 rounded-xl text-lg font-bold hover:bg-[#5d4a3a] transition-colors">مشاركة</button>
+                </section>
+
+                <!-- Pledge -->
+                <section class="text-center pb-8">
+                    <div class="bg-brand-brown rounded-full inline-block px-10 py-4 mb-8 shadow-2xl transform hover:scale-105 transition-transform cursor-pointer border-4 border-brand-gold/30 group" onclick="handlePledge()">
+                        <span id="pledge-text" class="text-brand-gold font-bold flex items-center gap-3 text-lg group-hover:text-white transition-colors">
+                            <i data-lucide="feather" class="w-6 h-6"></i> وقع ميثاق وسم
+                        </span>
+                    </div>
+                    <p class="text-base text-gray-500 dark:text-gray-400 bg-white dark:bg-white/5 inline-block px-6 py-2 rounded-full border border-brand-light dark:border-white/10 shadow-sm">
+                        انضم إلى <span id="pledge-count" class="font-bold text-brand-brown dark:text-white text-lg mx-1">1,250</span> موقع للحفاظ على التراث
+                    </p>
+                </section>
+            </div>
+
+            <!-- Registration Form -->
+            <section id="register" class="bg-brand-brown rounded-[3rem] p-8 md:p-20 shadow-2xl relative text-white overflow-hidden scroll-mt-24">
+                <div class="absolute -right-20 -top-20 w-80 h-80 bg-brand-gold opacity-10 rounded-full blur-3xl"></div>
+                <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-brand-gold opacity-10 rounded-full blur-3xl"></div>
+                
+                <div class="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                    <div>
+                        <span class="text-brand-gold font-bold tracking-widest uppercase mb-2 block">كن جزءاً من القصة</span>
+                        <h3 class="text-5xl font-bold font-cairo mb-6 text-white">انضم لعائلتنا</h3>
+                        <p class="text-[#eaddcf] leading-loose mb-10 text-lg">كن جزءاً من فريقنا وساهم في حفظ الهوية الأردنية للأجيال القادمة. تطوعك معنا هو وسام فخر نعتز به.</p>
+                        <div class="space-y-6">
+                            <div class="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/5">
+                                <div class="bg-brand-gold p-3 rounded-full text-brand-brown"><i data-lucide="check-circle" class="w-6 h-6"></i></div>
+                                <div>
+                                    <h5 class="font-bold text-lg">شهادات معتمدة</h5>
+                                    <p class="text-sm text-[#eaddcf]/70">توثيق ساعات التطوع رسمياً.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/5">
+                                <div class="bg-brand-gold p-3 rounded-full text-brand-brown"><i data-lucide="zap" class="w-6 h-6"></i></div>
+                                <div>
+                                    <h5 class="font-bold text-lg">تطوير مهارات</h5>
+                                    <p class="text-sm text-[#eaddcf]/70">ورش عمل في التصوير والتوثيق.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <form onsubmit="handleRegister(event)" class="space-y-5 bg-white/10 p-8 rounded-[2.5rem] border border-white/10 backdrop-blur-md shadow-2xl">
+                        <h4 class="text-2xl font-bold mb-4 text-center font-amiri">نموذج التسجيل</h4>
+                        <div class="relative">
+                            <i data-lucide="user" class="absolute right-4 top-4 w-5 h-5 text-[#eaddcf]/50"></i>
+                            <input type="text" id="reg-name" placeholder="الاسم الكامل" required class="w-full bg-black/20 border border-brand-gold/20 rounded-2xl px-12 py-4 text-white placeholder-white/40 focus:bg-black/30 focus:border-brand-gold focus:outline-none transition-all">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="relative">
+                                <i data-lucide="phone" class="absolute right-4 top-4 w-5 h-5 text-[#eaddcf]/50"></i>
+                                <input type="tel" id="reg-phone" placeholder="رقم الهاتف" required class="w-full bg-black/20 border border-brand-gold/20 rounded-2xl px-12 py-4 text-white placeholder-white/40 focus:bg-black/30 focus:border-brand-gold focus:outline-none transition-all">
+                            </div>
+                            <div class="relative">
+                                <input type="number" id="reg-age" placeholder="العمر" required class="w-full bg-black/20 border border-brand-gold/20 rounded-2xl px-6 py-4 text-white placeholder-white/40 focus:bg-black/30 focus:border-brand-gold focus:outline-none transition-all text-center">
+                            </div>
+                        </div>
+                        <div class="relative">
+                            <i data-lucide="map-pin" class="absolute right-4 top-4 w-5 h-5 text-[#eaddcf]/50"></i>
+                            <select id="reg-city" class="w-full bg-black/20 border border-brand-gold/20 rounded-2xl px-12 py-4 text-white focus:bg-black/30 focus:border-brand-gold focus:outline-none appearance-none transition-all cursor-pointer">
+                                <option value="" class="text-black">اختر المحافظة</option>
+                            </select>
+                            <i data-lucide="chevron-down" class="absolute left-4 top-4 w-5 h-5 text-[#eaddcf]/50 pointer-events-none"></i>
+                        </div>
+                         <!-- New Questions -->
+                        <div class="relative">
+                             <input type="text" id="reg-uni" placeholder="الجامعة / الجهة" class="w-full bg-black/20 border border-brand-gold/20 rounded-2xl px-6 py-4 text-white placeholder-white/40 focus:bg-black/30 focus:border-brand-gold focus:outline-none transition-all">
+                        </div>
+                        <div class="relative">
+                             <textarea id="reg-reason" placeholder="لماذا ترغب بالانضمام لمبادرة وسم؟" class="w-full bg-black/20 border border-brand-gold/20 rounded-2xl px-6 py-4 text-white placeholder-white/40 focus:bg-black/30 focus:border-brand-gold focus:outline-none transition-all h-24 resize-none"></textarea>
+                        </div>
+                         <div class="relative">
+                             <textarea id="reg-exp" placeholder="هل لديك خبرات سابقة؟ (اختياري)" class="w-full bg-black/20 border border-brand-gold/20 rounded-2xl px-6 py-4 text-white placeholder-white/40 focus:bg-black/30 focus:border-brand-gold focus:outline-none transition-all h-20 resize-none"></textarea>
+                        </div>
+
+                        <button type="submit" class="w-full bg-brand-gold text-brand-brown font-bold py-4 rounded-2xl hover:bg-white transition-all shadow-lg hover:shadow-brand-gold/50 flex items-center justify-center gap-2 transform hover:-translate-y-1 mt-4">
+                            <span>إرسال الطلب</span>
+                            <i data-lucide="send" class="w-5 h-5"></i>
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- Footer -->
+        <footer class="bg-brand-brown text-[#eaddcf] pt-20 pb-10 px-8 mt-20 border-t-8 border-brand-gold">
+            <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-10 text-center md:text-right">
+                <div>
+                    <div class="flex items-center gap-3 justify-center md:justify-start mb-4">
+                        <div class="p-2 bg-brand-gold rounded-lg text-[#2e2218]"><i data-lucide="fingerprint" class="w-6 h-6"></i></div>
+                        <h2 class="text-4xl font-amiri font-bold text-brand-gold">وســم</h2>
+                    </div>
+                    <p class="text-base opacity-70 font-cairo max-w-xs leading-relaxed">حيث يلتقي التراث بالمستقبل، لنصنع بصمة أردنية لا تُمحى.</p>
+                </div>
+                <div class="flex flex-col items-center md:items-end gap-6">
+                    <div class="flex gap-4">
+                        <a href="#" class="w-12 h-12 rounded-full bg-[#ffffff]/5 flex items-center justify-center hover:bg-brand-gold hover:text-[#2e2218] transition-all transform hover:scale-110"><i data-lucide="facebook" class="w-5 h-5"></i></a>
+                        <a href="#" class="w-12 h-12 rounded-full bg-[#ffffff]/5 flex items-center justify-center hover:bg-brand-gold hover:text-[#2e2218] transition-all transform hover:scale-110"><i data-lucide="instagram" class="w-5 h-5"></i></a>
+                        <a href="mailto:altrathalardnynady@gmail.com" class="w-12 h-12 rounded-full bg-[#ffffff]/5 flex items-center justify-center hover:bg-brand-gold hover:text-[#2e2218] transition-all transform hover:scale-110"><i data-lucide="mail" class="w-5 h-5"></i></a>
+                    </div>
+                    <a href="mailto:altrathalardnynady@gmail.com" class="text-brand-gold text-base font-sans hover:text-white transition-colors tracking-wider border-b border-brand-gold/30 pb-1">altrathalardnynady@gmail.com</a>
+                    <button onclick="toggleModal('login-modal')" class="text-xs opacity-40 hover:opacity-100 transition-opacity mt-2 flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full"><i data-lucide="lock" class="w-3 h-3"></i> منطقة الإدارة</button>
+                </div>
+            </div>
+            <div class="border-t border-white/10 mt-16 pt-8 text-center">
+                <p class="text-xs opacity-50 uppercase tracking-[0.2em] font-cairo">© <span id="year"></span> مبادرة وسم التراث الأردني | جميع الحقوق محفوظة</p>
+                <p class="mt-3 text-sm font-bold opacity-80 font-cairo text-brand-gold flex items-center justify-center gap-2">
+                    <i data-lucide="code" class="w-4 h-4"></i>
+                    تم تطوير الموقع بواسطة معاذ احمد الخوالدة
+                </p>
+            </div>
+        </footer>
+    
+    <!-- Floating Action Button -->
+    <a href="https://wa.me/962700000000" target="_blank" class="fixed bottom-8 right-8 bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform z-40 flex items-center justify-center border-4 border-white hover:border-[#25D366]">
+        <i data-lucide="phone" class="w-7 h-7"></i>
+    </a>
+
+    <!-- Audio Element -->
+    <audio id="heritage-audio" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    </audio>
+
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Data Structures
+        const governorates = [
+            { name: 'عمّان', region: 'center', desc: 'قلب الأردن النابض، تجمع بين عراقة المدرج الروماني وجبل القلعة.', icon: 'landmark' },
+            { name: 'إربد', region: 'north', desc: 'عروس الشمال، تشتهر بآثار أم قيس وسهول حوران الخصبة.', icon: 'wheat' },
+            { name: 'البلقاء', region: 'center', desc: 'حاضنة السلط العريقة، تتميز ببيوتها التراثية الصفراء.', icon: 'history' },
+            { name: 'جرش', region: 'north', desc: 'مدينة الألف عمود، واحدة من أكبر المدن الرومانية.', icon: 'users' },
+            { name: 'عجلون', region: 'north', desc: 'رئة الأردن الخضراء، تحتضن قلعة عجلون وغاباتها الكثيفة.', icon: 'trees' },
+            { name: 'المفرق', region: 'north', desc: 'بوابة الصحراء، موطن الكنائس القديمة والآثار الأموية.', icon: 'tent' },
+            { name: 'الزرقاء', region: 'center', desc: 'مدينة العسكر والعمال، تتميز بقصر شبيب ومحمية الأزرق.', icon: 'cpu' },
+            { name: 'مأدبا', region: 'center', desc: 'مدينة الفسيفساء، تضم خارطة الأرض المقدسة وجبل نيبو.', icon: 'palette' },
+            { name: 'الكرك', region: 'south', desc: 'أرض الهيبة والتاريخ، تشمخ فيها قلعة الكرك الحصينة.', icon: 'shield' },
+            { name: 'الطفيلة', region: 'south', desc: 'الهاشمية، تحتضن محمية ضانا وحمامات عفرا.', icon: 'mountain' },
+            { name: 'معان', region: 'south', desc: 'خزنة التاريخ، تضم البترا ووادي رم وقلعة الشوبك.', icon: 'sparkles' },
+            { name: 'العقبة', region: 'south', desc: 'ثغر الأردن الباسم.', icon: 'waves' },
+        ];
+
+        const partners = ['مؤسسة ولي العهد', 'جامعة آل البيت', 'وزارة الشباب', 'التراث الملكي الأردني', 'وزارة الثقافة', 'وزارة السياحة'];
+        
+        const teamMembers = [
+            { name: "معاذ الخوالدة", role: "رئيس المبادرة", desc: "المشرف العام على الرؤية والتطوير الاستراتيجي." },
+            { name: "أيهم الخوالدة", role: "نائب الرئيس", desc: "مدير العمليات والتنسيق التنفيذي للمبادرة." },
+            { name: "سجود شديفات", role: "عضو فريق العمل", desc: "المساهمة في التنسيق والمتابعة الإدارية." },
+            { name: "فرح الزيود", role: "عضو فريق العمل", desc: "المساهمة في تنظيم الأنشطة الميدانية." },
+            { name: "الاء عليمات", role: "عضو فريق العمل", desc: "المساهمة في التوثيق والمحتوى الإبداعي." }
+        ];
+
+        const roadmap = [
+            { title: "التأسيس والهوية", desc: "إطلاق الهوية البصرية وتشكيل الفريق الأساسي للمبادرة." },
+            { title: "الانطلاق الميداني", desc: "تنفيذ أولى الجولات التعريفية في المحافظات الأردنية." },
+            { title: "المنصة الرقمية", desc: "إطلاق مكتبة صور وتصاميم تراثية مفتوحة المصدر للجميع." },
+            { title: "التوسع والشراكات", desc: "عقد شراكات مع الجامعات والمؤسسات الرسمية والخاصة." }
+        ];
+
+        const journeySteps = [
+            { title: "التسجيل", icon: 'file-text' },
+            { title: "المقابلة", icon: 'user-plus' },
+            { title: "التدريب", icon: 'clipboard-check' },
+            { title: "الميدان", icon: 'flag' },
+            { title: "التكريم", icon: 'award' },
+        ];
+
+        const memberships = [
+            { title: "عضو عام", icon: 'user', desc: "المشاركة في الفعاليات العامة.", color: "bg-[#FAF8F5]", txtColor: "text-brand-brown" },
+            { title: "عضو متخصص", icon: 'zap', desc: "مهارات (تصميم، برمجة، بحث).", color: "bg-[#eaddcf]", txtColor: "text-brand-brown" },
+            { title: "سفير وسم", icon: 'badge-check', desc: "قيادة الفرق في الجامعات.", color: "bg-brand-gold", txtColor: "text-white" },
+        ];
+
+        const museumItems = [
+            { title: "الدلة والقهوة", desc: "رمز الكرم والضيافة.", icon: 'coffee' },
+            { title: "المهباش", desc: "آلة طحن القهوة.", icon: 'hammer' },
+            { title: "الشماغ المهدب", desc: "تاج الرأس ورمز الهوية.", icon: 'smile' },
+            { title: "الثوب الأردني", desc: "تنوع في التطريز والألوان.", icon: 'shirt' },
+            { title: "الربابة", desc: "صوت البادية الشجي.", icon: 'music' },
+        ];
+
+        const crafts = [
+            { title: "الفسيفساء", place: "مأدبا", desc: "فن الرسم بالحجارة الملونة." },
+            { title: "صناعة الصابون", place: "عجلون", desc: "منتجات طبيعية من زيت الزيتون." },
+            { title: "البسط والنسيج", place: "البلقاء", desc: "حياكة يدوية بخيوط الصوف." },
+            { title: "الرمل الملون", place: "العقبة/البترا", desc: "تعبئة الرمل في زجاجات فنية." },
+        ];
+
+        const dialectTerms = [
+            { word: "هسّا", meaning: "الآن / في هذه اللحظة" },
+            { word: "قوّطر", meaning: "ذهب أو غادر المكان" },
+            { word: "دشرني", meaning: "اتركني وشأني" },
+            { word: "عجاجة", meaning: "غبار كثيف أو فوضى" },
+            { word: "كشرة", meaning: "ملامح الوجه الجادة" },
+            { word: "التعليلة", meaning: "سهرة المساء والسمر" },
+            { word: "لويش", meaning: "لماذا / لأي سبب؟" },
+            { word: "يا باي", meaning: "تعبير عن التعجب والدهشة" },
+        ];
+
+        const proverbs = [
+            { text: "يا ماخذ القرد على ماله، بروح المال وبضل القرد على حاله.", meaning: "لا تطمع في المال على حساب الجوهر." },
+            { text: "الجار قبل الدار.", meaning: "اختر جيرانك بعناية قبل أن تختار منزلك." },
+            { text: "كل شي بوقته حلو.", meaning: "الصبر جميل، والأشياء تأتي في موعدها." },
+            { text: "ما بحرث الأرض غير عجولها.", meaning: "أهل البلد هم الأقدر على بنائها." },
+            { text: "الجود من الموجود.", meaning: "الكرم الحقيقي هو أن تقدم ما تملك." },
+        ];
+
+        const questionPool = [
+            { q: "ما هي المدينة الأردنية الملقبة بمدينة الألف عمود؟", options: ["البترا", "جرش", "أم قيس"], correct: 1 },
+            { q: "ما هو العنصر الذي تم إدراجه مؤخراً في قائمة اليونسكو؟", options: ["المنسف", "الدبكة", "السامر"], correct: 0 },
+            { q: "في أي محافظة تقع قلعة الربض؟", options: ["الكرك", "عجلون", "معان"], correct: 1 },
+            { q: "ما هي الزهرة الوطنية للأردن؟", options: ["السوسنة السوداء", "الياسمين", "الدحنون"], correct: 0 },
+            { q: "أين تقع تماثيل عين غزال؟", options: ["عمان", "السلط", "مادبا"], correct: 0 },
+            { q: "العملة الرسمية في الأردن؟", options: ["الدينار", "الدرهم", "الريال"], correct: 0 },
+            { q: "المدينة الوردية هي؟", options: ["البترا", "العقبة", "مادبا"], correct: 0 },
+            { q: "أخفض نقطة على سطح الأرض؟", options: ["البحر الميت", "طبريا", "العقبة"], correct: 0 }
+        ];
+
+        let currentQuizQuestions = [];
+        let currentQIdx = 0;
+        let score = 0;
+        let pledgeCount = 1250;
+        let hasPledged = false;
+        let isAudioPlaying = false;
+        
+        let eventsList = [
+            { id: 1, date: "15 آذار", title: "جولة تصوير في جبل القلعة", type: "ميداني", location: "عمّان" },
+            { id: 2, date: "22 آذار", title: "ورشة التوثيق الرقمي", type: "أونلاين", location: "Zoom" },
+            { id: 3, date: "5 نيسان", title: "أمسية حكايات إربد", type: "ثقافي", location: "بيت عرار" },
+        ];
+        
+        let tickerText = '✨ باب التطوع مفتوح الآن لموسم الصيف &nbsp;&nbsp;&nbsp; ✨ ورشة عمل "التوثيق الرقمي" تقام الأسبوع القادم في جرش &nbsp;&nbsp;&nbsp; ✨ انضموا لفريق "سفراء وسم" في الجامعات الأردنية';
+
+        // Initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                document.getElementById('intro-screen').classList.add('fade-out');
+                document.getElementById('main-content').classList.remove('opacity-0');
+            }, 4000);
+
+            document.getElementById('year').textContent = new Date().getFullYear();
+            updateTickerUI();
+
+            renderPartners();
+            renderTeam();
+            renderGovernorates('all');
+            renderMuseum();
+            renderCrafts();
+            renderDialect();
+            renderProverb();
+            renderJourney();
+            renderMemberships();
+            renderRoadmap();
+            renderEvents();
+            initMemoryGame();
+            
+            populateSelects();
+            lucide.createIcons();
+
+            // Filters logic
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filterBtns.forEach(b => {
+                        b.classList.remove('bg-brand-brown', 'text-white');
+                        b.classList.add('bg-white', 'text-brand-brown');
+                    });
+                    btn.classList.remove('bg-white', 'text-brand-brown');
+                    btn.classList.add('bg-brand-brown', 'text-white');
+                    renderGovernorates(btn.dataset.filter);
+                });
+            });
+        });
+
+        // Dark Mode Logic
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            lucide.createIcons();
+        }
+
+        // Memory Game Logic
+        const memoryIcons = ['coffee', 'map', 'music', 'utensils', 'camera', 'anchor'];
+        let memoryCards = [];
+        let flippedCards = [];
+        let matchedPairs = 0;
+
+        function initMemoryGame() {
+            const gameBoard = document.getElementById('memory-game');
+            gameBoard.innerHTML = '';
+            matchedPairs = 0;
+            flippedCards = [];
+            
+            const items = [...memoryIcons, ...memoryIcons];
+            items.sort(() => Math.random() - 0.5);
+
+            items.forEach((icon, index) => {
+                const card = document.createElement('div');
+                card.className = 'game-card w-20 h-20 relative cursor-pointer transform-style-3d transition-transform duration-500';
+                card.dataset.icon = icon;
+                card.onclick = () => flipCard(card);
+                
+                card.innerHTML = `
+                    <div class="front absolute w-full h-full bg-brand-brown rounded-xl flex items-center justify-center backface-hidden">
+                        <i data-lucide="help-circle" class="text-brand-gold w-8 h-8"></i>
+                    </div>
+                    <div class="back absolute w-full h-full bg-brand-gold rounded-xl flex items-center justify-center backface-hidden rotate-y-180">
+                        <i data-lucide="${icon}" class="text-white w-8 h-8"></i>
+                    </div>
+                `;
+                gameBoard.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        function flipCard(card) {
+            if (flippedCards.length < 2 && !card.classList.contains('flipped')) {
+                card.classList.add('flipped');
+                flippedCards.push(card);
+
+                if (flippedCards.length === 2) {
+                    setTimeout(checkMatch, 1000);
+                }
+            }
+        }
+
+        function checkMatch() {
+            const [card1, card2] = flippedCards;
+            if (card1.dataset.icon === card2.dataset.icon) {
+                matchedPairs++;
+                if (matchedPairs === memoryIcons.length) {
+                    setTimeout(() => alert('مبروك! أنهيت اللعبة! 🎉'), 500);
+                }
+            } else {
+                card1.classList.remove('flipped');
+                card2.classList.remove('flipped');
+            }
+            flippedCards = [];
+        }
+
+        // Audio Toggle
+        function toggleAudio() {
+            const audio = document.getElementById('heritage-audio');
+            const btn = document.getElementById('audio-btn');
+            if (isAudioPlaying) {
+                audio.pause();
+                btn.classList.remove('bg-brand-gold', 'text-white');
+                btn.classList.add('bg-[#FAF8F5]', 'text-brand-brown');
+            } else {
+                audio.play();
+                btn.classList.add('bg-brand-gold', 'text-white');
+                btn.classList.remove('bg-[#FAF8F5]', 'text-brand-brown');
+            }
+            isAudioPlaying = !isAudioPlaying;
+            lucide.createIcons();
+        }
+
+        // Render Functions
+        function renderPartners() {
+            const container = document.getElementById('partners-list');
+            if(!container) return;
+            partners.forEach(p => {
+                container.innerHTML += `
+                    <div class="flex flex-col items-center gap-3 group hover:-translate-y-2 transition-transform cursor-default p-4 bg-white dark:bg-white/5 rounded-xl shadow-sm hover:shadow-md border border-transparent hover:border-[#eaddcf]">
+                        <div class="w-20 h-20 bg-[#FAF8F5] dark:bg-white/10 rounded-full flex items-center justify-center border-2 border-dashed border-brand-gold/30 group-hover:border-brand-gold transition-colors shadow-inner">
+                            <i data-lucide="award" class="w-8 h-8 text-brand-gold/50 group-hover:text-brand-gold"></i>
+                        </div>
+                        <span class="text-xs font-bold text-brand-brown dark:text-gray-300 text-center max-w-[120px] font-cairo leading-tight">${p}</span>
+                    </div>`;
+            });
+        }
+
+        function renderTeam() {
+            const container = document.getElementById('team-list');
+            if(!container) return;
+            teamMembers.forEach(m => {
+                container.innerHTML += `
+                    <div class="bg-white dark:bg-white/5 p-8 rounded-3xl border border-[#eaddcf] dark:border-white/10 shadow-sm hover:shadow-xl transition-all group hover:-translate-y-2">
+                        <div class="w-16 h-16 bg-brand-brown rounded-2xl flex items-center justify-center text-brand-gold mb-6 group-hover:bg-brand-gold group-hover:text-white transition-colors shadow-lg"><i data-lucide="user" class="w-8 h-8"></i></div>
+                        <h4 class="text-xl font-bold text-brand-brown dark:text-white font-cairo">${m.name}</h4>
+                        <div class="text-sm text-brand-gold font-bold mb-3 mt-1">${m.role}</div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed border-t border-dashed border-gray-200 dark:border-white/10 pt-3">${m.desc}</p>
+                    </div>`;
+            });
+        }
+
+        function renderGovernorates(filter) {
+            const container = document.getElementById('governorates-list');
+            if(!container) return;
+            container.innerHTML = '';
+            const filtered = filter === 'all' ? governorates : governorates.filter(g => g.region === filter);
+            
+            filtered.forEach(g => {
+                container.innerHTML += `
+                    <div class="bg-white dark:bg-white/5 border border-[#eaddcf] dark:border-white/10 rounded-3xl p-6 hover:shadow-2xl transition-all group hover:border-brand-gold animate-float hover:scale-[1.02]">
+                        <div class="flex items-start gap-5">
+                            <div class="p-4 bg-brand-brown/5 text-brand-brown rounded-2xl group-hover:bg-brand-gold group-hover:text-white transition-colors shadow-inner"><i data-lucide="${g.icon}" class="w-8 h-8"></i></div>
+                            <div>
+                                <h4 class="font-bold text-xl text-brand-brown dark:text-white font-cairo mb-2 group-hover:text-brand-gold transition-colors">${g.name}</h4>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed text-justify">${g.desc}</p>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+            lucide.createIcons();
+        }
+
+        function renderMuseum() {
+            const container = document.getElementById('museum-list');
+            if(!container) return;
+            museumItems.forEach(i => {
+                container.innerHTML += `
+                    <div class="bg-white dark:bg-white/5 p-6 rounded-3xl border border-[#eaddcf] dark:border-white/10 hover:shadow-xl transition-all text-center group cursor-pointer hover:-translate-y-2">
+                        <div class="w-20 h-20 mx-auto bg-brand-brown/5 rounded-full flex items-center justify-center text-brand-brown mb-4 group-hover:bg-brand-gold group-hover:text-white transition-colors shadow-inner"><i data-lucide="${i.icon}" class="w-10 h-10"></i></div>
+                        <h4 class="font-bold text-brand-brown dark:text-white text-lg mb-2 group-hover:text-brand-gold transition-colors">${i.title}</h4>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 leading-tight">${i.desc}</p>
+                    </div>`;
+            });
+        }
+        
+        function renderCrafts() {
+            const container = document.getElementById('crafts-list');
+            if(!container) return;
+            crafts.forEach(c => {
+                container.innerHTML += `
+                    <div class="relative bg-white dark:bg-white/5 rounded-3xl overflow-hidden shadow-md border border-[#eaddcf] dark:border-white/10 group hover:shadow-xl transition-all">
+                        <div class="h-32 bg-[#FAF8F5] dark:bg-white/5 flex items-center justify-center border-b border-[#eaddcf] dark:border-white/10"><i data-lucide="palette" class="w-12 h-12 text-brand-brown/30 group-hover:text-brand-gold transition-colors"></i></div>
+                        <div class="p-6">
+                            <h4 class="font-bold text-xl text-brand-brown dark:text-white font-cairo mb-1">${c.title}</h4>
+                            <div class="flex items-center gap-1 text-xs text-brand-gold mb-3 font-bold"><i data-lucide="map-pin" class="w-3 h-3"></i> ${c.place}</div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mb-6 leading-relaxed">${c.desc}</p>
+                            <button class="w-full py-3 rounded-xl border-2 border-brand-brown text-brand-brown dark:text-white dark:border-white text-sm font-bold hover:bg-brand-brown hover:text-white transition-colors">دعم الحرفي</button>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function renderDialect() {
+            const container = document.getElementById('dialect-list');
+            if(!container) return;
+            dialectTerms.forEach(t => {
+                container.innerHTML += `
+                    <div class="group perspective cursor-pointer h-40">
+                        <div class="relative w-full h-full duration-700 transform-style-3d group-hover:rotate-y-180 transition-transform">
+                            <div class="absolute w-full h-full bg-white dark:bg-white/5 border-2 border-[#eaddcf] dark:border-white/10 rounded-3xl flex flex-col items-center justify-center backface-hidden shadow-sm hover:border-brand-gold transition-colors">
+                                <span class="text-xs text-brand-gold font-bold uppercase tracking-widest mb-1">مصطلح</span>
+                                <h4 class="text-3xl font-bold text-brand-brown dark:text-white font-amiri">${t.word}</h4>
+                            </div>
+                            <div class="absolute w-full h-full bg-brand-brown text-white rounded-3xl flex items-center justify-center backface-hidden rotate-y-180 px-4 text-center shadow-xl border-2 border-brand-gold">
+                                <p class="text-lg font-cairo">${t.meaning}</p>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+        }
+        
+        let currentProverbIdx = 0;
+        function renderProverb() {
+            const textEl = document.getElementById('proverb-text');
+            const meanEl = document.getElementById('proverb-meaning');
+            if(textEl) textEl.innerText = `"${proverbs[currentProverbIdx].text}"`;
+            if(meanEl) meanEl.innerText = `💡 ${proverbs[currentProverbIdx].meaning}`;
+        }
+        function nextProverb() {
+            currentProverbIdx = (currentProverbIdx + 1) % proverbs.length;
+            renderProverb();
+        }
+        function prevProverb() {
+            currentProverbIdx = (currentProverbIdx === 0) ? proverbs.length - 1 : currentProverbIdx - 1;
+            renderProverb();
+        }
+        
+        function renderJourney() {
+            const container = document.getElementById('journey-list');
+            if(!container) return;
+            journeySteps.forEach((s, idx) => {
+                container.innerHTML += `
+                    <div class="flex flex-col items-center text-center bg-white dark:bg-white/5 p-6 rounded-3xl border border-[#eaddcf] dark:border-white/10 shadow-sm w-full md:w-40 z-10 hover:scale-110 transition-transform hover:border-brand-gold group">
+                        <div class="w-14 h-14 rounded-full bg-brand-brown text-brand-gold flex items-center justify-center mb-4 shadow-lg group-hover:bg-brand-gold group-hover:text-white transition-colors relative">
+                            <i data-lucide="${s.icon}" class="w-6 h-6"></i>
+                            <span class="absolute -top-2 -right-2 w-6 h-6 bg-white dark:bg-brand-dark text-brand-brown dark:text-white rounded-full text-xs flex items-center justify-center font-bold border border-[#eaddcf] dark:border-white/10">${idx + 1}</span>
+                        </div>
+                        <h4 class="font-bold text-brand-brown dark:text-white text-base mb-1 font-cairo">${s.title}</h4>
+                    </div>`;
+            });
+        }
+
+        function renderMemberships() {
+            const container = document.getElementById('membership-list');
+            if(!container) return;
+            memberships.forEach(m => {
+                container.innerHTML += `
+                    <div class="${m.color} dark:bg-white/5 p-8 rounded-[2rem] text-center border border-[#eaddcf] dark:border-white/10 transition-all hover:-translate-y-3 hover:shadow-2xl">
+                        <div class="mx-auto w-20 h-20 rounded-2xl flex items-center justify-center mb-6 shadow-inner ${m.title === "سفير وسم" ? "bg-white/20 text-white" : "bg-white dark:bg-white/10 text-brand-brown dark:text-white"}"><i data-lucide="${m.icon}" class="w-10 h-10"></i></div>
+                        <h4 class="text-2xl font-bold mb-3 font-cairo ${m.txtColor} dark:text-white">${m.title}</h4>
+                        <p class="text-base opacity-80 leading-relaxed ${m.txtColor} dark:text-gray-300">${m.desc}</p>
+                        <button class="mt-6 px-6 py-2 rounded-full text-xs font-bold border ${m.title === "سفير وسم" ? "border-white text-white hover:bg-white hover:text-brand-gold" : "border-brand-brown text-brand-brown dark:text-white dark:border-white hover:bg-brand-brown hover:text-white"} transition-colors">تفاصيل</button>
+                    </div>`;
+            });
+        }
+        
+        function renderRoadmap() {
+            const container = document.getElementById('roadmap-list');
+            if(!container) return;
+            roadmap.forEach((item, i) => {
+                container.innerHTML += `
+                    <div class="bg-[#FAF8F5] dark:bg-white/5 p-6 rounded-3xl border border-[#eaddcf] dark:border-white/10 relative group hover:bg-white dark:hover:bg-white/10 transition-colors">
+                        <div class="absolute -top-4 right-6 w-10 h-10 rounded-xl bg-brand-gold text-brand-brown flex items-center justify-center font-bold shadow-lg text-lg transform group-hover:rotate-12 transition-transform">${i+1}</div>
+                        <h4 class="font-bold text-brand-brown dark:text-white text-lg mb-3 mt-4 font-cairo group-hover:text-brand-gold transition-colors">${item.title}</h4>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">${item.desc}</p>
+                    </div>`;
+            });
+        }
+        
+        function renderEvents() {
+            const container = document.getElementById('events-list-display');
+            const adminContainer = document.getElementById('admin-events-list');
+
+            if(container) {
+                 container.innerHTML = '';
+                 eventsList.forEach(e => {
+                     container.innerHTML += `
+                        <div class="bg-white dark:bg-white/5 p-8 rounded-3xl border-r-8 border-brand-gold shadow-sm hover:shadow-xl transition-all group">
+                            <div class="flex justify-between items-start mb-6">
+                                <span class="bg-[#FAF8F5] dark:bg-white/10 text-brand-brown dark:text-white px-4 py-1.5 rounded-lg text-xs font-bold border border-[#eaddcf] dark:border-white/10">${e.type}</span>
+                                <span class="text-brand-gold font-bold text-sm flex items-center gap-2"><i data-lucide="calendar" class="w-4 h-4"></i> ${e.date}</span>
+                            </div>
+                            <h4 class="font-bold text-xl text-brand-brown dark:text-white mb-3 group-hover:text-brand-gold transition-colors font-cairo">${e.title}</h4>
+                            <div class="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-sm">
+                                <i data-lucide="map-pin" class="w-4 h-4 text-brand-gold"></i><span>${e.location}</span>
+                            </div>
+                            <button class="w-full mt-6 py-3 rounded-xl bg-[#FAF8F5] dark:bg-white/10 text-brand-brown dark:text-white font-bold text-sm hover:bg-brand-brown hover:text-white transition-colors">سجل اهتمامك</button>
+                        </div>`;
+                });
+            }
+            
+            if(adminContainer) {
+                 adminContainer.innerHTML = '';
+                 eventsList.forEach(e => {
+                     adminContainer.innerHTML += `
+                        <div class="bg-white p-4 rounded-xl border border-gray-200 flex justify-between items-center group">
+                            <div>
+                                <h4 class="font-bold text-brand-brown">${e.title}</h4>
+                                <p class="text-xs text-gray-500">${e.date} | ${e.location}</p>
+                            </div>
+                            <button onclick="deleteEvent(${e.id})" class="text-red-400 p-2 hover:bg-red-50 rounded-lg transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </div>`;
+                 });
+            }
+            
+            const adminCount = document.getElementById('admin-event-count');
+            if(adminCount) adminCount.innerText = eventsList.length;
+            lucide.createIcons();
+        }
+
+        function populateSelects() {
+            const regSel = document.getElementById('reg-city');
+            const tripSel = document.getElementById('trip-city');
+            if(regSel) {
+                governorates.forEach(g => {
+                    const opt = `<option value="${g.name}" class="text-black">${g.name}</option>`;
+                    regSel.innerHTML += opt;
+                    if(tripSel) tripSel.innerHTML += opt;
+                });
+            }
+        }
+
+        function updateTickerUI() {
+             const tickerEl = document.getElementById('ticker-content');
+             const inputEl = document.getElementById('ticker-input');
+             if(tickerEl) tickerEl.innerHTML = tickerText;
+             if(inputEl) inputEl.value = tickerText.replace(/&nbsp;/g, ' ');
+        }
+        
+        function updateTicker() {
+             const newVal = document.getElementById('ticker-input').value;
+             tickerText = newVal;
+             updateTickerUI();
+             alert('تم تحديث الشريط الإخباري!');
+        }
+
+        // Gemini API Implementation
+        const apiKey = ""; // API Key
+        
+        async function callGeminiAPI(prompt, systemInstruction = "You are a helpful assistant.") {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const delays = [1000, 2000, 4000, 8000, 16000];
+
+            for (let i = 0; i < 5; i++) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: prompt }] }],
+                            systemInstruction: { parts: [{ text: systemInstruction }] }
+                        })
+                    });
+                    if (response.status === 429) throw new Error('Rate limit exceeded');
+                    if (!response.ok) throw new Error(`API Error: ${response.status}`);
+                    const data = await response.json();
+                    return data.candidates?.[0]?.content?.parts?.[0]?.text || "عذراً، لم أتمكن من الرد.";
+                } catch (error) {
+                    if (i === 4) return "عذراً، الخدمة مشغولة حالياً.";
+                    await new Promise(resolve => setTimeout(resolve, delays[i]));
+                }
+            }
+        }
+
+        // AI Functions
+        async function askHakawati() {
+            const q = document.getElementById('hakawati-q').value;
+            const res = document.getElementById('hakawati-res');
+            if(!q) return;
+            res.innerHTML = '<span class="loading-dots">جاري التفكير</span>';
+            const systemPrompt = "أنت النشمي، مساعد ذكي وخبير في التراث الأردني. تتحدث باللهجة الأردنية البيضاء.";
+            const userPrompt = `السؤال: ${q}`;
+            const answer = await callGeminiAPI(userPrompt, systemPrompt);
+            res.innerText = answer;
+        }
+
+        async function generateNameStory() {
+            const name = document.getElementById('visitor-name').value;
+            const res = document.getElementById('name-story-result');
+            if(!name) return;
+            res.classList.remove('hidden');
+            res.innerHTML = '<span class="loading-dots">جاري النسج</span>';
+            const systemPrompt = "أنت خبير في اللغة العربية والتراث الأردني. اكتب نصاً إبداعي قصير جداً يربط الاسم بصفات أردنية.";
+            const userPrompt = `اكتب وسماً تراثياً لاسم: ${name}`;
+            const story = await callGeminiAPI(userPrompt, systemPrompt);
+            res.innerText = story;
+        }
+
+        async function generateTrip() {
+            const city = document.getElementById('trip-city').value;
+            const res = document.getElementById('trip-result');
+            if(!city) return;
+            res.classList.remove('hidden');
+            res.innerHTML = '<span class="loading-dots">جاري التخطيط</span>';
+            const systemPrompt = "أنت مرشد سياحي أردني. اقترح برنامج رحلة ليوم واحد يركز على التراث.";
+            const userPrompt = `اقترح خطة رحلة تراثية في محافظة: ${city}`;
+            const plan = await callGeminiAPI(userPrompt, systemPrompt);
+            res.innerText = plan;
+        }
+        
+        async function generateRecipe() {
+            const ing = document.getElementById('kitchen-ing').value;
+            const res = document.getElementById('kitchen-result');
+            if(!ing) return;
+            res.classList.remove('hidden');
+            res.innerHTML = '<span class="loading-dots">الشيف النشمي يجهز الوصفة</span>';
+            const systemPrompt = "أنت طباخ أردني ماهر. اقترح طبقاً أردنياً واحداً يمكن تحضيره بالمكونات المذكورة.";
+            const userPrompt = `المكونات: ${ing}`;
+            const recipe = await callGeminiAPI(userPrompt, systemPrompt);
+            res.innerText = recipe;
+        }
+
+        async function generatePoem() {
+             const topic = document.getElementById('poet-topic').value;
+             const res = document.getElementById('poet-result');
+             if(!topic) return;
+             res.classList.remove('hidden');
+             res.innerHTML = '<span class="loading-dots">جاري نظم الأبيات</span>';
+             const systemPrompt = "أنت شاعر نبطي أردني. اكتب بيتين من الشعر النبطي الموزون حول الموضوع.";
+             const userPrompt = `الموضوع: ${topic}`;
+             const poem = await callGeminiAPI(userPrompt, systemPrompt);
+             res.innerText = poem;
+        }
+
+        // Pledge
+        function handlePledge() {
+            if(!hasPledged) {
+                pledgeCount++;
+                hasPledged = true;
+                document.getElementById('pledge-count').innerText = pledgeCount.toLocaleString();
+                const btn = document.getElementById('pledge-text');
+                btn.innerHTML = `<i data-lucide="check-circle" class="w-6 h-6"></i> تم التوقيع بنجاح`;
+                btn.parentElement.classList.add('bg-brand-gold', 'border-transparent');
+                btn.parentElement.classList.remove('bg-brand-brown', 'border-brand-gold/30');
+                btn.classList.add('text-brand-brown');
+                btn.classList.remove('text-brand-gold');
+                lucide.createIcons();
+            }
+        }
+
+        // Form Handling
+        function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('reg-name').value;
+            const phone = document.getElementById('reg-phone').value;
+            const uni = document.getElementById('reg-uni').value;
+            const reason = document.getElementById('reg-reason').value;
+            const msg = { id: Date.now(), name, phone, date: new Date().toLocaleDateString(), email: "example@mail.com", city: "غير محدد", track: "عام", skills: "-" };
+            
+            const list = document.getElementById('admin-messages-list');
+            if(list.innerText.includes('لا توجد')) list.innerHTML = '';
+            
+            list.innerHTML = `
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col md:flex-row justify-between gap-4">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1"><h4 class="font-bold text-brand-brown">${name}</h4><span class="text-xs bg-gray-100 px-2 py-1 rounded-full text-gray-500">جديد</span></div>
+                        <p class="text-sm text-gray-600 mb-1">📞 ${phone}</p>
+                         <p class="text-xs text-gray-400 mb-1">🎓 ${uni}</p>
+                        <p class="text-xs text-gray-500 italic">"${reason}"</p>
+                    </div>
+                </div>` + list.innerHTML;
+            
+            document.getElementById('admin-msg-count').innerText = parseInt(document.getElementById('admin-msg-count').innerText) + 1;
+            window.location.href = `mailto:altrathalardnynady@gmail.com?subject=تسجيل جديد: ${name}&body=الاسم: ${name}%0D%0Aالهاتف: ${phone}%0D%0Aالجامعة/الجهة: ${uni}%0D%0Aالدافع: ${reason}`;
+            alert('تم تجهيز البريد الإلكتروني!');
+        }
+
+        // Admin Security Simulation
+        // Credentials are kept in variables, not hardcoded in HTML input values.
+        const SECRET_ID = "MjE1MDUwMjA3MQ=="; // Base64 for 2150502071
+        const SECRET_PASS = "MDAwMA==";       // Base64 for 0000
+
+        function toggleModal(id) {
+            document.getElementById(id).classList.toggle('hidden');
+            document.getElementById(id).classList.toggle('flex');
+        }
+        function loginAdmin() {
+            const id = document.getElementById('admin-id').value;
+            const pass = document.getElementById('admin-pass').value;
+            
+            // Simple obfuscation check
+            if (btoa(id) === SECRET_ID && btoa(pass) === SECRET_PASS) {
+                toggleModal('login-modal');
+                document.getElementById('admin-dashboard').classList.remove('hidden');
+                document.getElementById('admin-dashboard').classList.add('flex');
+                renderEvents(); 
+            } else {
+                alert('بيانات الدخول غير صحيحة');
+            }
+        }
+        function logoutAdmin() {
+            document.getElementById('admin-dashboard').classList.add('hidden');
+            document.getElementById('admin-dashboard').classList.remove('flex');
+            document.getElementById('admin-id').value = '';
+            document.getElementById('admin-pass').value = '';
+        }
+        function switchAdminTab(tab) {
+            ['dashboard', 'messages', 'opportunities', 'broadcast', 'ticker', 'team-manage'].forEach(t => {
+                const el = document.getElementById(`admin-tab-${t}`);
+                if(el) el.classList.add('hidden');
+            });
+            const target = document.getElementById(`admin-tab-${tab}`);
+            if(target) target.classList.remove('hidden');
+        }
+        function addEvent(e) {
+            e.preventDefault();
+            const title = document.getElementById('new-event-title').value;
+            const date = document.getElementById('new-event-date').value;
+            const loc = document.getElementById('new-event-loc').value;
+            const type = document.getElementById('new-event-type').value;
+            const newEv = { id: Date.now(), title, date, location: loc, type };
+            eventsList.push(newEv);
+            renderEvents();
+            alert('تمت إضافة الفرصة بنجاح!');
+        }
+        function deleteEvent(id) {
+            eventsList = eventsList.filter(e => e.id !== id);
+            renderEvents();
+        }
+
+    </script>
+</body>
+</html>
