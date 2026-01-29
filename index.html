@@ -1,0 +1,2606 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مبادرة وسم التراث الأردني | Wasm Initiative</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            brown: '#4A3728', 
+                            gold: '#C5A065', 
+                            cream: '#FDFBF7',
+                            light: '#EADDCD'
+                        }
+                    },
+                    fontFamily: {
+                        amiri: ['Amiri', 'serif'],
+                        cairo: ['Cairo', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px rgba(74, 55, 40, 0.05)',
+                        'card': '0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025)',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@200;300;400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- Styles --- */
+        body { @apply bg-brand-cream text-brand-brown font-cairo; }
+        
+        .pattern-dot {
+            background-image: radial-gradient(#EADDCD 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .pattern-bedouin {
+            background-color: #4A3728;
+            opacity: 0.8;
+            background-image:  repeating-linear-gradient(45deg, #5D4632 25%, transparent 25%, transparent 75%, #5D4632 75%, #5D4632), repeating-linear-gradient(45deg, #5D4632 25%, #4A3728 25%, #4A3728 75%, #5D4632 75%, #5D4632);
+            background-position: 0 0, 10px 10px;
+            background-size: 20px 20px;
+        }
+
+        /* Animations */
+        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-5px); } }
+        .animate-float { animation: float 5s ease-in-out infinite; }
+
+        @keyframes scroll-text { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        .animate-ticker { animation: scroll-text 35s linear infinite; }
+        
+        .fade-out { animation: fadeOut 1s forwards; pointer-events: none; }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; visibility: hidden; } }
+
+        /* Custom Components */
+        .section-card {
+            background-color: white;
+            border-radius: 1rem;
+            border: 1px solid #EADDCD;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        .section-card:hover {
+            border-color: #C5A065;
+            transform: translateY(-2px);
+        }
+
+        /* Story Card Style */
+        .story-card {
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .story-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(74, 55, 40, 0.1);
+        }
+
+        /* Loading Dots & 3D Flip */
+        .loading-dots:after {
+            content: ' .';
+            animation: dots 1s steps(5, end) infinite;
+        }
+        @keyframes dots {
+            0%, 20% { content: ' .'; } 40% { content: ' ..'; } 60% { content: ' ...'; } 80%, 100% { content: ''; }
+        }
+
+        .perspective { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+        .game-card.flipped .front { transform: rotateY(180deg); }
+        .game-card.flipped .back { transform: rotateY(0deg); }
+        .game-card .front, .game-card .back {
+            position: absolute; width: 100%; height: 100%;
+            backface-visibility: hidden; transition: transform 0.6s;
+            border-radius: 0.75rem; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .game-card .front { background: #4A3728; transform: rotateY(0deg); z-index: 2; }
+        .game-card .back { background: #C5A065; transform: rotateY(180deg); z-index: 1;}
+        
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #C5A065; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #4A3728; }
+    </style>
+</head>
+<body class="m-0 p-0 overflow-x-hidden relative selection:bg-brand-gold selection:text-white pattern-dot">
+
+    <!-- Intro Screen -->
+    <div id="intro-screen" class="fixed inset-0 z-[100] bg-brand-brown flex flex-col items-center justify-center text-center transition-opacity duration-1000">
+        <div class="relative mb-6">
+            <div class="absolute inset-0 bg-brand-gold blur-3xl opacity-30 rounded-full animate-pulse"></div>
+            <div class="relative z-10 p-6 border-4 border-brand-gold/50 rounded-full bg-white/5 backdrop-blur-md">
+                <i data-lucide="fingerprint" class="w-20 h-20 text-brand-gold"></i>
+            </div>
+        </div>
+        <h1 class="text-6xl font-amiri font-bold text-white mb-4 animate-bounce">وســم</h1>
+        <p class="text-brand-light text-xl tracking-widest font-light uppercase">هوية تعانق المستقبل</p>
+    </div>
+
+    <!-- Auth Portal Modal -->
+    <div id="auth-portal" class="fixed inset-0 z-[90] bg-black/80 hidden items-center justify-center backdrop-blur-md p-4 transition-all">
+        <div class="bg-[#FDFBF7] p-8 rounded-[2rem] w-full max-w-5xl shadow-2xl border-4 border-brand-gold relative overflow-hidden transform transition-all scale-100">
+            <button onclick="toggleModal('auth-portal')" class="absolute top-6 right-6 text-brand-brown hover:text-brand-gold transition-colors"><i data-lucide="x" class="w-8 h-8"></i></button>
+            
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-bold text-brand-brown font-amiri mb-2">بوابة وسم الرقمية</h2>
+                <p class="text-gray-500">اختر طريقة الدخول للمتابعة</p>
+            </div>
+            
+            <!-- Auth Selection Grid -->
+            <div id="auth-selection" class="grid grid-cols-1 md:grid-cols-3 gap-6 transition-all duration-500">
+                <!-- 1. Volunteer Login -->
+                <div onclick="showVolunteerAuth()" class="bg-white p-6 rounded-3xl border border-[#EADDCD] text-center hover:border-brand-gold transition-all group shadow-sm hover:shadow-md cursor-pointer">
+                    <div class="w-20 h-20 bg-brand-cream rounded-full flex items-center justify-center mx-auto mb-4 text-brand-gold group-hover:bg-brand-gold group-hover:text-white transition-colors">
+                        <i data-lucide="user-plus" class="w-10 h-10"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-brand-brown mb-2 font-cairo">دخول المتطوعين</h3>
+                    <p class="text-xs text-gray-500 mb-6">تسجيل الدخول أو إنشاء ملف شخصي جديد</p>
+                    <button class="w-full bg-brand-brown text-white py-3 rounded-xl font-bold text-sm group-hover:bg-[#5d4a3a] transition-colors shadow-lg">متابعة</button>
+                </div>
+
+                <!-- 2. Admin Login -->
+                <div class="bg-white p-6 rounded-3xl border border-[#EADDCD] text-center hover:border-brand-gold transition-all group shadow-sm hover:shadow-md">
+                    <div class="w-20 h-20 bg-brand-cream rounded-full flex items-center justify-center mx-auto mb-4 text-brand-brown group-hover:bg-brand-brown group-hover:text-white transition-colors">
+                        <i data-lucide="shield-check" class="w-10 h-10"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-brand-brown mb-2 font-cairo">الإدارة</h3>
+                    <p class="text-xs text-gray-500 mb-6">الدخول المخصص للمسؤولين</p>
+                    <div class="space-y-3">
+                        <input type="text" id="portal-admin-id" placeholder="المعرف" class="w-full p-3 border rounded-xl text-sm text-center bg-gray-50">
+                        <input type="password" id="portal-admin-pass" placeholder="كلمة المرور" class="w-full p-3 border rounded-xl text-sm text-center bg-gray-50">
+                        <button onclick="loginAdminPortal()" class="w-full bg-brand-gold text-white py-3 rounded-xl font-bold text-sm hover:bg-[#b8860b] transition-colors shadow-lg">دخول</button>
+                    </div>
+                </div>
+
+                <!-- 3. Visitor -->
+                <div class="bg-white p-6 rounded-3xl border border-[#EADDCD] text-center hover:border-brand-gold transition-all group flex flex-col justify-center shadow-sm hover:shadow-md">
+                    <div class="w-20 h-20 bg-brand-cream rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400 group-hover:bg-gray-200 group-hover:text-gray-600 transition-colors">
+                        <i data-lucide="eye" class="w-10 h-10"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-brand-brown mb-2 font-cairo">زائر</h3>
+                    <p class="text-xs text-gray-500 mb-8">تصفح الموقع واستكشف التراث دون تسجيل</p>
+                    <button onclick="toggleModal('auth-portal')" class="w-full border-2 border-brand-brown text-brand-brown py-3 rounded-xl font-bold text-sm hover:bg-brand-brown hover:text-white transition-colors">متابعة التصفح</button>
+                </div>
+            </div>
+
+            <!-- Volunteer Auth Forms (Hidden Initially) -->
+            <div id="volunteer-forms" class="hidden max-w-lg mx-auto bg-white p-8 rounded-3xl border border-brand-light relative">
+                <button onclick="hideVolunteerAuth()" class="absolute top-4 right-4 text-gray-400 hover:text-brand-brown"><i data-lucide="arrow-right" class="w-6 h-6"></i></button>
+                
+                <!-- Tabs -->
+                <div class="flex border-b border-gray-200 mb-6">
+                    <button onclick="switchAuthTab('login')" id="tab-login" class="flex-1 py-3 font-bold text-brand-brown border-b-2 border-brand-brown transition-colors">تسجيل دخول</button>
+                    <button onclick="switchAuthTab('register')" id="tab-register" class="flex-1 py-3 text-gray-400 font-medium hover:text-brand-brown transition-colors">حساب جديد</button>
+                </div>
+
+                <!-- Login Form -->
+                <div id="view-login" class="space-y-4 animate-float" style="animation-duration: 0.5s">
+                    <div class="text-center mb-4"><span class="bg-brand-cream text-brand-gold px-3 py-1 rounded-full text-xs font-bold">أهلاً بعودتك يا نشمي</span></div>
+                    <input type="text" id="login-identifier" placeholder="الاسم، الهاتف، أو البريد الإلكتروني" class="w-full p-4 border rounded-xl bg-gray-50 focus:bg-white focus:border-brand-gold outline-none transition-all">
+                    <input type="password" id="login-password" placeholder="كلمة المرور" class="w-full p-4 border rounded-xl bg-gray-50 focus:bg-white focus:border-brand-gold outline-none transition-all">
+                    <button onclick="performVolunteerLogin()" class="w-full bg-brand-brown text-white py-4 rounded-xl font-bold hover:bg-[#5d4a3a] shadow-lg transition-transform active:scale-95">دخول</button>
+                </div>
+
+                <!-- Register Form -->
+                <div id="view-register" class="hidden space-y-4 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
+                    <!-- Profile Pic Upload -->
+                    <div class="text-center mb-6">
+                        <div class="w-24 h-24 bg-gray-100 rounded-full mx-auto flex items-center justify-center border-2 border-dashed border-brand-gold cursor-pointer hover:bg-brand-cream transition-colors overflow-hidden relative group" onclick="document.getElementById('reg-photo').click()">
+                            <img id="preview-photo" src="" class="absolute inset-0 w-full h-full object-cover hidden">
+                            <i data-lucide="camera" class="w-8 h-8 text-gray-400 group-hover:text-brand-brown"></i>
+                        </div>
+                        <input type="file" id="reg-photo" class="hidden" accept="image/*" onchange="previewImage(this)">
+                        <p class="text-xs text-gray-400 mt-2">صورة شخصية (اختياري)</p>
+                    </div>
+
+                    <input type="text" id="reg-fullname-new" placeholder="الاسم الكامل" class="w-full p-3 border rounded-xl text-sm focus:border-brand-gold outline-none">
+                    <input type="email" id="reg-email-new" placeholder="البريد الإلكتروني" class="w-full p-3 border rounded-xl text-sm focus:border-brand-gold outline-none">
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="tel" id="reg-phone-new" placeholder="رقم الهاتف" class="w-full p-3 border rounded-xl text-sm focus:border-brand-gold outline-none">
+                        <div class="relative">
+                            <input type="date" id="reg-dob-new" class="w-full p-3 border rounded-xl text-sm focus:border-brand-gold outline-none text-gray-500">
+                            <span class="absolute top-0 right-0 p-1 text-[10px] text-brand-gold font-bold bg-white -mt-2 mr-2">تاريخ الميلاد/العمر</span>
+                        </div>
+                    </div>
+                    <input type="text" id="reg-address-new" placeholder="عنوان السكن (المحافظة - المنطقة)" class="w-full p-3 border rounded-xl text-sm focus:border-brand-gold outline-none">
+                    <input type="password" id="reg-pass-new" placeholder="كلمة المرور" class="w-full p-3 border rounded-xl text-sm focus:border-brand-gold outline-none">
+                    <textarea id="reg-bio-new" placeholder="نبذة تعريفية عنك..." class="w-full p-3 border rounded-xl text-sm focus:border-brand-gold outline-none h-20 resize-none"></textarea>
+
+                    <button onclick="performVolunteerRegister()" class="w-full bg-brand-gold text-white py-3 rounded-xl font-bold hover:bg-brand-brown shadow-lg transition-transform active:scale-95">إنشاء حساب وحفظ البيانات تلقائياً</button>
+                    
+                    <div id="form-status" class="hidden text-xs text-center font-bold mt-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Complaint Modal (New) -->
+    <div id="complaint-modal" class="fixed inset-0 z-[100] bg-black/50 hidden items-center justify-center backdrop-blur-sm p-4">
+        <div class="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden animate-float relative">
+            <button onclick="toggleModal('complaint-modal')" class="absolute top-4 right-4 text-gray-400 hover:text-brand-brown"><i data-lucide="x" class="w-6 h-6"></i></button>
+            <div class="bg-brand-brown p-6 text-center text-white">
+                <i data-lucide="message-square-warning" class="w-12 h-12 mx-auto mb-2 text-brand-gold"></i>
+                <h3 class="text-xl font-bold font-cairo">صوتك مسموع</h3>
+                <p class="text-xs opacity-80">شاركنا اقتراحاتك أو شكاويك لتطوير المبادرة</p>
+            </div>
+            <div class="p-6 space-y-4">
+                <input type="text" id="comp-name" placeholder="الاسم (اختياري)" class="w-full p-3 border rounded-xl text-sm focus:border-brand-gold outline-none">
+                <select id="comp-type" class="w-full p-3 border rounded-xl text-sm focus:border-brand-gold outline-none bg-white">
+                    <option value="complaint">شكوى</option>
+                    <option value="suggestion">اقتراح</option>
+                </select>
+                <textarea id="comp-msg" placeholder="اكتب تفاصيل الرسالة هنا..." class="w-full p-3 border rounded-xl text-sm focus:border-brand-gold outline-none h-32 resize-none"></textarea>
+                <button onclick="submitComplaint()" class="w-full bg-brand-gold text-white py-3 rounded-xl font-bold hover:bg-brand-brown transition-colors shadow-md">إرسال</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW: Story Details Modal -->
+    <div id="story-details-modal" class="fixed inset-0 z-[110] bg-black/80 hidden items-center justify-center backdrop-blur-md p-4">
+        <div class="bg-white rounded-[2rem] w-full max-w-4xl shadow-2xl overflow-hidden relative flex flex-col md:flex-row h-auto max-h-[90vh]">
+            <button onclick="toggleModal('story-details-modal')" class="absolute top-4 right-4 z-20 bg-black/50 text-white p-2 rounded-full hover:bg-black transition-colors"><i data-lucide="x" class="w-6 h-6"></i></button>
+            
+            <!-- Image Side -->
+            <div class="w-full md:w-1/2 h-64 md:h-auto relative">
+                <img id="modal-story-img" src="" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-8">
+                    <div>
+                        <h3 id="modal-story-name" class="text-3xl font-bold text-brand-gold font-amiri mb-2"></h3>
+                        <p id="modal-story-phrase" class="text-white text-sm opacity-90 italic"></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Content Side -->
+            <div class="w-full md:w-1/2 p-8 overflow-y-auto bg-[#FDFBF7]">
+                <div class="flex items-center gap-2 mb-6 text-brand-brown opacity-50 border-b border-brand-light pb-2">
+                    <i data-lucide="feather" class="w-5 h-5"></i>
+                    <span class="text-sm font-bold uppercase tracking-widest">قصة نجاح</span>
+                </div>
+                <div id="modal-story-desc" class="text-gray-700 leading-loose text-lg font-amiri whitespace-pre-line"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Profile Modal -->
+    <div id="profile-modal" class="fixed inset-0 z-[95] bg-black/80 hidden items-center justify-center backdrop-blur-md p-4">
+        <div class="bg-white rounded-[2rem] w-full max-w-md overflow-hidden shadow-2xl relative animate-float">
+            <div class="h-32 bg-brand-brown relative">
+                <div class="absolute inset-0 pattern-bedouin opacity-10"></div>
+                <button onclick="toggleModal('profile-modal')" class="absolute top-4 right-4 text-white/80 hover:text-white"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            <div class="px-8 pb-8 text-center -mt-16 relative z-10">
+                <div class="w-32 h-32 bg-white p-1 rounded-full mx-auto shadow-lg mb-4">
+                    <img id="profile-img-display" src="https://via.placeholder.com/150" class="w-full h-full rounded-full object-cover border-4 border-brand-cream">
+                </div>
+                <h3 id="profile-name-display" class="text-2xl font-bold text-brand-brown font-amiri mb-1">اسم المتطوع</h3>
+                <p id="profile-loc-display" class="text-sm text-gray-500 mb-4 flex justify-center items-center gap-1"><i data-lucide="map-pin" class="w-3 h-3"></i> عمان، الأردن</p>
+                
+                <div class="flex justify-center gap-4 mb-6">
+                    <div class="text-center px-4 border-l border-gray-200">
+                        <span class="block font-bold text-xl text-brand-gold">0</span>
+                        <span class="text-[10px] text-gray-400">ساعات</span>
+                    </div>
+                    <div class="text-center px-4">
+                        <span class="block font-bold text-xl text-brand-gold">0</span>
+                        <span class="text-[10px] text-gray-400">فعاليات</span>
+                    </div>
+                    <div class="text-center px-4 border-r border-gray-200">
+                        <span class="block font-bold text-xl text-brand-gold">0</span>
+                        <span class="text-[10px] text-gray-400">نقاط</span>
+                    </div>
+                </div>
+
+                <div class="bg-[#FAF8F5] p-4 rounded-xl text-right mb-6">
+                    <h4 class="text-xs font-bold text-brand-brown mb-2 opacity-50 uppercase tracking-wider">نبذة تعريفية</h4>
+                    <p id="profile-bio-display" class="text-sm text-gray-600 leading-relaxed font-amiri">لا توجد نبذة تعريفية...</p>
+                </div>
+
+                <div class="space-y-3">
+                    <button onclick="toggleModal('profile-modal'); window.open('https://forms.gle/f1GbAFECYWBEBtMx6', '_blank')" class="w-full py-3 rounded-xl border-2 border-brand-gold text-brand-gold font-bold hover:bg-brand-gold hover:text-white transition-colors text-sm">
+                        تحديث البيانات رسمياً
+                    </button>
+                    
+                    <button onclick="logoutVolunteer()" class="w-full py-3 rounded-xl bg-red-50 text-red-500 font-bold hover:bg-red-100 transition-colors text-sm flex items-center justify-center gap-2">
+                        <i data-lucide="log-out" class="w-4 h-4"></i> تسجيل الخروج
+                    </button>
+                </div>
+
+                <div class="text-xs text-gray-400 mt-4">تم توثيق بياناتك في سجلات المبادرة تلقائياً</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="admin-dashboard" class="fixed inset-0 z-[80] bg-brand-cream hidden flex-col overflow-y-auto">
+        <div class="bg-brand-brown p-4 flex justify-between items-center text-white shadow-lg sticky top-0 z-10">
+            <div class="flex items-center gap-4">
+                <h2 class="text-xl font-bold flex items-center gap-3"><i data-lucide="lock" class="w-5 h-5 text-brand-gold"></i> وحدة التحكم</h2>
+                <!-- Personalized Greeting -->
+                <span id="admin-welcome-msg" class="text-sm bg-brand-gold/20 px-3 py-1 rounded-full border border-brand-gold/30 text-brand-gold font-bold"></span>
+            </div>
+            <button onclick="logoutAdmin()" class="bg-red-500/20 hover:bg-red-600/40 text-red-100 px-6 py-2 rounded-xl text-sm font-bold transition-all border border-red-500/30">خروج</button>
+        </div>
+        <div class="flex flex-col md:flex-row flex-1">
+            <div class="w-full md:w-64 bg-white border-l border-brand-light p-4 gap-2 flex flex-row md:flex-col overflow-x-auto shadow-sm">
+                <button onclick="switchAdminTab('dashboard')" class="p-3 rounded-xl text-right font-bold text-sm flex items-center gap-3 hover:bg-brand-cream transition-colors text-brand-brown"><i data-lucide="layout-dashboard" class="w-4 h-4 text-brand-gold"></i> الرئيسية</button>
+                <button onclick="switchAdminTab('opportunities')" class="p-3 rounded-xl text-right font-bold text-sm flex items-center gap-3 hover:bg-brand-cream transition-colors text-brand-brown"><i data-lucide="calendar-plus" class="w-4 h-4 text-brand-gold"></i> إدارة الفرص</button>
+                
+                <button onclick="switchAdminTab('join-requests')" class="p-3 rounded-xl text-right font-bold text-sm flex items-center gap-3 hover:bg-brand-cream transition-colors text-brand-brown bg-yellow-50 text-yellow-700 border border-yellow-100"><i data-lucide="user-plus" class="w-4 h-4 text-yellow-600"></i> طلبات الانضمام</button>
+                
+                <button onclick="switchAdminTab('complaints')" class="p-3 rounded-xl text-right font-bold text-sm flex items-center gap-3 hover:bg-brand-cream transition-colors text-brand-brown"><i data-lucide="message-square-warning" class="w-4 h-4 text-brand-gold"></i> الشكاوى والمقترحات</button>
+
+                <button onclick="switchAdminTab('community')" class="p-3 rounded-xl text-right font-bold text-sm flex items-center gap-3 hover:bg-brand-cream transition-colors text-brand-brown"><i data-lucide="users" class="w-4 h-4 text-brand-gold"></i> إدارة المجتمع</button>
+
+                <!-- NEW: Stories Tab -->
+                <button onclick="switchAdminTab('stories')" class="p-3 rounded-xl text-right font-bold text-sm flex items-center gap-3 hover:bg-brand-cream transition-colors text-brand-brown"><i data-lucide="star" class="w-4 h-4 text-brand-gold"></i> قصص النجاح</button>
+
+                <button onclick="switchAdminTab('notifications')" class="p-3 rounded-xl text-right font-bold text-sm flex items-center gap-3 hover:bg-brand-cream transition-colors text-brand-brown"><i data-lucide="bell" class="w-4 h-4 text-brand-gold"></i> إرسال إشعارات</button>
+
+                <button onclick="switchAdminTab('partners')" class="p-3 rounded-xl text-right font-bold text-sm flex items-center gap-3 hover:bg-brand-cream transition-colors text-brand-brown"><i data-lucide="handshake" class="w-4 h-4 text-brand-gold"></i> شركاء النجاح</button>
+                
+                <!-- Super Admin Tab -->
+                <button id="btn-admin-team" onclick="switchAdminTab('team')" class="hidden p-3 rounded-xl text-right font-bold text-sm flex items-center gap-3 bg-red-50 text-red-800 hover:bg-red-100 border border-red-100 transition-colors"><i data-lucide="users-round" class="w-4 h-4 text-red-500"></i> إدارة الفريق والصلاحيات</button>
+
+                <button onclick="switchAdminTab('ticker')" class="p-3 rounded-xl text-right font-bold text-sm flex items-center gap-3 hover:bg-brand-cream transition-colors text-brand-brown"><i data-lucide="scroll-text" class="w-4 h-4 text-brand-gold"></i> الشريط العلوي</button>
+                <button onclick="switchAdminTab('messages')" class="p-3 rounded-xl text-right font-bold text-sm flex items-center gap-3 hover:bg-brand-cream transition-colors text-brand-brown"><i data-lucide="inbox" class="w-4 h-4 text-brand-gold"></i> الرسائل</button>
+            </div>
+            <div class="flex-1 p-8 bg-brand-cream min-h-screen" id="admin-content-area">
+                <div id="admin-tab-dashboard">
+                    <h3 class="text-2xl font-bold text-brand-brown mb-6">لوحة المعلومات</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100"><h3 class="text-gray-400 text-sm font-bold mb-2">المتطوعين الجدد</h3><p class="text-4xl font-bold text-brand-brown" id="admin-msg-count">0</p></div>
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100"><h3 class="text-gray-400 text-sm font-bold mb-2">الفعاليات النشطة</h3><p class="text-4xl font-bold text-brand-gold" id="admin-event-count">3</p></div>
+                    </div>
+                </div>
+                
+                <!-- Join Requests Tab -->
+                <div id="admin-tab-join-requests" class="hidden">
+                    <h3 class="text-2xl font-bold text-brand-brown mb-6">طلبات الانضمام الجديدة</h3>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-brand-light overflow-x-auto">
+                        <table class="w-full text-right text-sm">
+                            <thead class="bg-gray-50 text-gray-500 border-b">
+                                <tr>
+                                    <th class="p-3">الاسم</th>
+                                    <th class="p-3">الهاتف</th>
+                                    <th class="p-3">المحافظة</th>
+                                    <th class="p-3">السبب</th>
+                                    <th class="p-3">التاريخ</th>
+                                    <th class="p-3">إجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-join-requests-list" class="divide-y divide-gray-100">
+                                <!-- JS Generated -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Complaints Tab -->
+                <div id="admin-tab-complaints" class="hidden">
+                    <h3 class="text-2xl font-bold text-brand-brown mb-6">الشكاوى والمقترحات</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="admin-complaints-list">
+                        <!-- JS Generated -->
+                    </div>
+                </div>
+
+                <!-- Notifications Tab -->
+                <div id="admin-tab-notifications" class="hidden">
+                    <h3 class="text-2xl font-bold text-brand-brown mb-6">مركز الإشعارات</h3>
+                    <div class="bg-white p-6 rounded-2xl shadow-md border border-brand-light mb-6">
+                        <h4 class="font-bold text-brand-gold mb-4 flex items-center gap-2"><i data-lucide="send" class="w-5 h-5"></i> إرسال إشعار عام</h4>
+                        <div class="space-y-4">
+                            <textarea id="admin-notif-msg" class="w-full p-4 border rounded-xl focus:outline-none focus:border-brand-gold h-32 resize-none" placeholder="اكتب نص الإشعار هنا... سيظهر لجميع المستخدمين"></textarea>
+                            <button onclick="sendNotification()" class="bg-brand-brown text-white px-6 py-2 rounded-xl font-bold hover:bg-[#5d4a3a] shadow-md flex items-center gap-2">
+                                <i data-lucide="bell-ring" class="w-4 h-4"></i> إرسال للجميع
+                            </button>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-brand-light">
+                        <h4 class="font-bold text-gray-400 text-xs mb-4 uppercase tracking-widest border-b border-gray-100 pb-2">سجل الإشعارات المرسلة</h4>
+                        <div id="admin-notif-log" class="space-y-2"></div>
+                    </div>
+                </div>
+
+                <!-- NEW: Admin Stories Tab -->
+                <div id="admin-tab-stories" class="hidden">
+                    <h3 class="text-2xl font-bold text-brand-brown mb-6">إدارة قصص النجاح</h3>
+                    
+                    <!-- Add Story Form -->
+                    <div class="bg-white p-6 rounded-2xl shadow-md border border-brand-light mb-6">
+                        <h4 class="font-bold text-brand-gold mb-4 flex items-center gap-2"><i data-lucide="plus-circle" class="w-5 h-5"></i> إضافة قصة جديدة</h4>
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <input type="text" id="new-story-name" placeholder="الاسم" class="w-full p-3 border rounded-xl text-sm focus:border-brand-gold outline-none">
+                                <input type="text" id="new-story-phrase" placeholder="عبارة قصيرة (مثال: سفير التراث في البلقاء)" class="w-full p-3 border rounded-xl text-sm focus:border-brand-gold outline-none">
+                            </div>
+                            <div class="relative">
+                                <label class="block text-xs text-gray-500 mb-1 font-bold">صورة شخصية</label>
+                                <input type="file" id="new-story-img" accept="image/*" class="w-full p-2 border rounded-xl text-sm bg-gray-50">
+                            </div>
+                            <textarea id="new-story-desc" placeholder="القصة الكاملة والتفاصيل..." class="w-full p-3 border rounded-xl text-sm focus:border-brand-gold outline-none h-32 resize-none"></textarea>
+                            <button onclick="handleAddStory()" class="w-full bg-brand-gold text-white font-bold py-3 rounded-xl hover:bg-brand-brown shadow-md flex justify-center items-center gap-2">
+                                <i data-lucide="save" class="w-4 h-4"></i> نشر القصة
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Stories List -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-brand-light">
+                        <h4 class="font-bold text-gray-400 text-xs mb-4 uppercase tracking-widest border-b border-gray-100 pb-2">القصص المنشورة</h4>
+                        <div id="admin-stories-list" class="space-y-3 max-h-[400px] overflow-y-auto custom-scrollbar">
+                            <!-- JS Generated -->
+                        </div>
+                    </div>
+                </div>
+
+                <div id="admin-tab-opportunities" class="hidden">
+                      <h3 class="text-2xl font-bold text-brand-brown mb-6">إدارة الفرص</h3>
+                      <div class="bg-white p-6 rounded-2xl shadow-md border border-brand-light mb-6">
+                        <h4 class="font-bold text-brand-gold mb-4 flex items-center gap-2"><i data-lucide="plus-circle" class="w-5 h-5"></i> إضافة فرصة جديدة</h4>
+                        <form onsubmit="addEvent(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input type="text" id="new-event-title" placeholder="العنوان" required class="p-3 border rounded-xl text-sm focus:border-brand-gold outline-none">
+                            <input type="text" id="new-event-date" placeholder="التاريخ" required class="p-3 border rounded-xl text-sm focus:border-brand-gold outline-none">
+                            <input type="text" id="new-event-loc" placeholder="الموقع" required class="p-3 border rounded-xl text-sm focus:border-brand-gold outline-none">
+                            <select id="new-event-type" class="p-3 border rounded-xl text-sm focus:border-brand-gold outline-none"><option value="ميداني">ميداني</option><option value="أونلاين">أونلاين</option></select>
+                            <button type="submit" class="md:col-span-2 bg-brand-gold text-white font-bold py-3 rounded-xl hover:bg-[#b8860b] shadow-md">نشر</button>
+                        </form>
+                    </div>
+                    <div id="admin-events-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                </div>
+
+                <!-- Community Management Tab -->
+                <div id="admin-tab-community" class="hidden">
+                    <h3 class="text-2xl font-bold text-brand-brown mb-6">إدارة المجتمع</h3>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Pending -->
+                        <div class="bg-white p-4 rounded-2xl shadow-sm border border-brand-light">
+                            <h4 class="font-bold text-brand-gold border-b border-brand-light pb-2 mb-4 flex items-center gap-2">
+                                <i data-lucide="clock" class="w-4 h-4"></i> بانتظار الموافقة
+                            </h4>
+                            <div id="admin-pending-posts" class="space-y-4"></div>
+                        </div>
+
+                        <!-- Published -->
+                        <div class="bg-white p-4 rounded-2xl shadow-sm border border-brand-light">
+                            <h4 class="font-bold text-green-600 border-b border-brand-light pb-2 mb-4 flex items-center gap-2">
+                                <i data-lucide="check-circle" class="w-4 h-4"></i> المنشورات الفعالة
+                            </h4>
+                            <div id="admin-active-posts" class="space-y-4"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Partners Management Section -->
+                <div id="admin-tab-partners" class="hidden">
+                    <h3 class="text-2xl font-bold text-brand-brown mb-6">إدارة شركاء النجاح</h3>
+                    
+                    <!-- Add Partner Form -->
+                    <div class="bg-white p-6 rounded-2xl shadow-md border border-brand-light mb-6">
+                        <h4 class="font-bold text-brand-gold mb-4 flex items-center gap-2"><i data-lucide="plus-circle" class="w-5 h-5"></i> إضافة شريك جديد</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1 font-bold">اسم الجهة / الشريك</label>
+                                <input type="text" id="new-partner-name" placeholder="مثال: هيئة تنشيط السياحة" class="w-full p-3 border rounded-xl text-sm focus:border-brand-gold outline-none bg-gray-50">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1 font-bold">شعار الشريك (صورة)</label>
+                                <div class="relative">
+                                    <input type="file" id="new-partner-img" accept="image/*" class="w-full p-2 border rounded-xl text-sm bg-gray-50 file:ml-2 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-brand-brown file:text-white hover:file:bg-brand-gold cursor-pointer">
+                                </div>
+                            </div>
+                            <button onclick="handleAddPartner()" class="md:col-span-2 bg-brand-gold text-white font-bold py-3 rounded-xl hover:bg-brand-brown shadow-md transition-colors flex justify-center items-center gap-2">
+                                <i data-lucide="save" class="w-4 h-4"></i> حفظ وإضافة
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Partners List -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-brand-light">
+                        <h4 class="font-bold text-gray-400 text-xs mb-4 uppercase tracking-widest border-b border-gray-100 pb-2">القائمة الحالية</h4>
+                        <div id="admin-partners-list" class="space-y-3 max-h-[400px] overflow-y-auto custom-scrollbar">
+                            <!-- Items generated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Team & Access Management Tab -->
+                <div id="admin-tab-team" class="hidden">
+                    <h3 class="text-2xl font-bold text-brand-brown mb-6 flex items-center gap-2"><i data-lucide="shield-alert" class="text-red-500"></i> المنطقة المحظورة (إدارة الفريق والصلاحيات)</h3>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- 1. Team Management -->
+                        <div class="space-y-6">
+                            <h4 class="font-bold text-brand-gold border-b border-brand-light pb-2">أعضاء الفريق (الواجهة الرئيسية)</h4>
+                            
+                            <!-- Add Member Form -->
+                            <div class="bg-white p-4 rounded-2xl shadow-sm border border-brand-light">
+                                <h5 class="text-xs font-bold text-gray-400 mb-3">إضافة عضو جديد</h5>
+                                <div class="space-y-3">
+                                    <input type="text" id="new-team-name" placeholder="الاسم" class="w-full p-2 border rounded-lg text-sm">
+                                    <input type="text" id="new-team-role" placeholder="المسمى الوظيفي" class="w-full p-2 border rounded-lg text-sm">
+                                    <input type="text" id="new-team-desc" placeholder="الوصف المختصر" class="w-full p-2 border rounded-lg text-sm">
+                                    <button onclick="handleAddTeamMember()" class="w-full bg-brand-brown text-white py-2 rounded-lg text-sm font-bold hover:bg-brand-gold transition-colors">إضافة للفريق</button>
+                                </div>
+                            </div>
+
+                            <!-- Team List -->
+                            <div class="bg-white p-4 rounded-2xl shadow-sm border border-brand-light max-h-[400px] overflow-y-auto custom-scrollbar" id="admin-team-list">
+                                <!-- Generated via JS -->
+                            </div>
+                        </div>
+
+                        <!-- 2. Access Control (Block/Unblock) -->
+                        <div class="space-y-6">
+                            <h4 class="font-bold text-red-500 border-b border-brand-light pb-2">التحكم بالوصول (حظر المستخدمين)</h4>
+                            
+                            <!-- Admin Users List -->
+                            <div class="bg-white p-4 rounded-2xl shadow-sm border border-brand-light">
+                                <h5 class="text-xs font-bold text-gray-400 mb-3">الإداريين</h5>
+                                <div id="admin-users-control-list" class="space-y-2"></div>
+                            </div>
+
+                            <!-- Volunteer Users List -->
+                            <div class="bg-white p-4 rounded-2xl shadow-sm border border-brand-light">
+                                <h5 class="text-xs font-bold text-gray-400 mb-3">المتطوعين المسجلين</h5>
+                                <div id="vol-users-control-list" class="space-y-2 max-h-[300px] overflow-y-auto custom-scrollbar"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="admin-tab-ticker" class="hidden">
+                    <h3 class="text-2xl font-bold text-brand-brown mb-6">تحرير الشريط العلوي</h3>
+                    <div class="bg-white p-6 rounded-2xl shadow-md border border-brand-light">
+                        <textarea id="ticker-input" class="w-full p-4 border rounded-xl mb-4 focus:outline-none focus:border-brand-gold h-32"></textarea>
+                        <button onclick="updateTicker()" class="bg-brand-brown text-white px-6 py-2 rounded-xl font-bold hover:bg-[#5d4a3a] shadow-md">حفظ</button>
+                    </div>
+                </div>
+                <div id="admin-tab-messages" class="hidden"><h3 class="text-2xl font-bold text-brand-brown mb-6">الرسائل الواردة</h3><div id="admin-messages-list" class="space-y-4 text-center text-gray-400">لا توجد رسائل.</div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Standalone Community Interface (Full Screen Modal) -->
+    <div id="community-modal" class="fixed inset-0 z-[100] bg-[#FAF8F5] hidden overflow-y-auto">
+        <!-- Community Header -->
+        <header class="sticky top-0 z-50 bg-white border-b border-brand-light shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex items-center gap-4">
+                        <button onclick="closeCommunity()" class="p-2 rounded-full hover:bg-gray-100 text-brand-brown"><i data-lucide="arrow-right" class="w-6 h-6"></i></button>
+                        <span class="text-xl font-bold text-brand-brown font-amiri">مجتمع وسم</span>
+                    </div>
+                    <!-- User Info in Header -->
+                    <div class="flex items-center gap-3">
+                        <span id="comm-header-name" class="hidden md:inline font-bold text-sm text-brand-brown"></span>
+                        <img id="comm-header-img" src="https://via.placeholder.com/150" class="w-10 h-10 rounded-full border-2 border-brand-gold">
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                <!-- Sidebar -->
+                <div class="hidden lg:block space-y-4">
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-brand-light text-center">
+                        <img id="comm-sidebar-img" src="https://via.placeholder.com/150" class="w-20 h-20 rounded-full mx-auto mb-2 border-2 border-brand-gold">
+                        <h3 id="comm-sidebar-name" class="font-bold text-brand-brown">اسم المتطوع</h3>
+                        <p class="text-xs text-gray-500 mb-4">عضو فعال</p>
+                        <div class="flex justify-center gap-4 text-xs font-bold text-brand-gold">
+                            <span>0 متابعين</span>
+                            <span>0 منشورات</span>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-brand-light">
+                        <h4 class="font-bold text-brand-brown mb-3 border-b border-brand-light pb-2">روابط سريعة</h4>
+                        <ul class="space-y-2 text-sm text-gray-600">
+                            <li class="flex items-center gap-2 hover:text-brand-gold cursor-pointer"><i data-lucide="home" class="w-4 h-4"></i> الرئيسية</li>
+                            <li class="flex items-center gap-2 hover:text-brand-gold cursor-pointer"><i data-lucide="user" class="w-4 h-4"></i> ملفي الشخصي</li>
+                            <li class="flex items-center gap-2 hover:text-brand-gold cursor-pointer"><i data-lucide="image" class="w-4 h-4"></i> صوري</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Main Feed -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Create Post Widget -->
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-brand-light">
+                        <div class="flex gap-4">
+                            <div id="current-user-avatar" class="w-12 h-12 bg-gray-200 rounded-full flex-shrink-0 bg-cover bg-center border-2 border-brand-light" style="background-image: url('https://via.placeholder.com/150');"></div>
+                            <div class="flex-1">
+                                <textarea id="post-content" class="w-full bg-gray-50 border-0 rounded-xl p-3 focus:ring-2 focus:ring-brand-gold resize-none text-sm outline-none transition-all" rows="3" placeholder="شاركينا لحظاتك التراثية يا نشمي..."></textarea>
+                                <div class="flex justify-between items-center mt-3">
+                                    <button class="text-gray-400 hover:text-brand-brown transition-colors relative overflow-hidden group">
+                                        <i data-lucide="image" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+                                        <input type="file" id="post-image" class="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" onchange="previewPostImage(this)">
+                                    </button>
+                                    <button onclick="submitPost()" class="bg-brand-brown text-white px-6 py-2 rounded-xl text-sm font-bold hover:bg-brand-gold transition-colors shadow-md">نشر</button>
+                                </div>
+                                <div id="post-img-preview" class="hidden mt-2 relative w-fit group">
+                                    <img src="" class="h-20 rounded-lg border border-gray-200 object-cover">
+                                    <button onclick="clearPostImage()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition-colors"><i data-lucide="x" class="w-3 h-3"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Feed Stream -->
+                    <div id="feed-stream" class="space-y-6">
+                        <!-- Posts will be injected here -->
+                    </div>
+                </div>
+
+                <!-- Right Sidebar (Trends/Active) -->
+                <div class="hidden lg:block space-y-4">
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-brand-light">
+                        <h4 class="font-bold text-brand-brown mb-3 flex items-center gap-2"><i data-lucide="trending-up" class="w-4 h-4 text-brand-gold"></i> الأكثر تداولاً</h4>
+                        <ul class="space-y-2 text-xs font-bold text-gray-500">
+                            <li class="cursor-pointer hover:text-brand-brown">#البترا_اليوم</li>
+                            <li class="cursor-pointer hover:text-brand-brown">#منسف_الجمعة</li>
+                            <li class="cursor-pointer hover:text-brand-brown">#تراثنا_هويتنا</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- News Ticker -->
+    <div class="bg-brand-brown text-brand-light text-sm py-3 overflow-hidden whitespace-nowrap relative z-50 border-b-2 border-brand-gold font-bold shadow-md">
+        <div id="ticker-content" class="animate-ticker inline-block min-w-full text-center">
+            ✨ باب التطوع مفتوح الآن لموسم الصيف &nbsp;&nbsp;&nbsp; ✨ ورشة عمل "التوثيق الرقمي" تقام الأسبوع القادم في جرش &nbsp;&nbsp;&nbsp; ✨ انضموا لفريق "سفراء وسم" في الجامعات الأردنية
+        </div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="sticky top-0 z-40 bg-white/90 backdrop-blur-md shadow-sm border-b border-brand-light">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex-shrink-0 flex items-center gap-2 group cursor-pointer" onclick="window.scrollTo(0,0)">
+                    <div class="w-10 h-10 bg-brand-cream border-2 border-brand-gold rounded-full flex items-center justify-center">
+                        <i data-lucide="fingerprint" class="h-5 w-5 text-brand-brown"></i>
+                    </div>
+                    <span class="font-amiri font-bold text-brand-brown text-2xl">وسم</span>
+                </div>
+                <div class="hidden md:flex items-center gap-6">
+                    <div class="flex space-x-2 space-x-reverse text-sm font-bold">
+                        <a href="#header" class="text-brand-brown hover:text-brand-gold px-3 py-2 transition-colors">الرئيسية</a>
+                        <a href="#about" class="text-brand-brown hover:text-brand-gold px-3 py-2 transition-colors">المبادرة</a>
+                        <a href="#interactive" class="text-brand-brown hover:text-brand-gold px-3 py-2 transition-colors">الواحة</a>
+                        <!-- Community Link -->
+                        <button onclick="openCommunity()" class="text-brand-brown hover:text-brand-gold px-3 py-2 transition-colors font-bold flex items-center gap-1">
+                            <i data-lucide="users" class="w-4 h-4"></i> مجتمع وسم
+                        </button>
+                    </div>
+                    <button onclick="toggleAudio()" id="audio-btn" class="p-2 rounded-full bg-brand-cream border border-brand-light text-brand-brown hover:bg-brand-gold hover:text-white transition-all tooltip" title="تشغيل موسيقى"><i data-lucide="music" class="w-5 h-5"></i></button>
+                    
+                    <!-- Notification Bell -->
+                    <div class="relative group">
+                        <button onclick="toggleUserNotifications()" class="p-2 rounded-full bg-brand-cream border border-brand-light text-brand-brown hover:bg-brand-gold hover:text-white transition-all relative">
+                            <i data-lucide="bell" class="w-5 h-5"></i>
+                            <span id="notif-badge" class="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full hidden border border-white"></span>
+                        </button>
+                        <!-- Notifications Dropdown -->
+                        <div id="user-notifications-dropdown" class="absolute top-12 left-0 w-64 bg-white border border-brand-light rounded-xl shadow-xl hidden p-2 z-50">
+                            <h4 class="text-xs font-bold text-gray-400 mb-2 border-b pb-1">الإشعارات</h4>
+                            <div id="user-notif-list" class="text-xs space-y-2 max-h-48 overflow-y-auto">
+                                <p class="text-center text-gray-300">لا توجد إشعارات جديدة</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Updated Login Button -->
+                    <button onclick="toggleModal('auth-portal')" id="nav-login-btn" class="bg-brand-gold text-white px-5 py-2 rounded-xl text-sm font-bold hover:bg-brand-brown transition-all shadow-md flex items-center gap-2">
+                        <i data-lucide="log-in" class="w-4 h-4"></i> تسجيل الدخول
+                    </button>
+                </div>
+                <div class="-mr-2 flex md:hidden">
+                    <button type="button" class="inline-flex items-center justify-center p-2 rounded-md text-brand-brown" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')"><i data-lucide="menu" class="h-8 w-8"></i></button>
+                </div>
+            </div>
+        </div>
+        <div class="hidden md:hidden bg-white border-t border-brand-light absolute w-full shadow-xl" id="mobile-menu">
+            <div class="px-4 pt-4 pb-6 space-y-2 text-right">
+                <a href="#header" class="block px-4 py-2 rounded-xl font-bold text-brand-brown hover:bg-brand-cream">الرئيسية</a>
+                <a href="#interactive" class="block px-4 py-2 rounded-xl font-bold text-brand-brown hover:bg-brand-cream">الواحة</a>
+                <button onclick="openCommunity()" class="block w-full text-right px-4 py-2 rounded-xl font-bold text-brand-brown hover:bg-brand-cream">مجتمع وسم</button>
+                <button onclick="toggleModal('auth-portal')" class="block w-full text-right px-4 py-2 rounded-xl font-bold text-white bg-brand-gold mt-2">تسجيل الدخول</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div id="main-content" class="max-w-5xl mx-auto my-8 opacity-0 transition-opacity duration-1000 relative z-10 min-h-screen px-4">
+        
+        <!-- Hero Section -->
+        <div id="header" class="bg-gradient-to-b from-[#3A2618] to-[#1a100a] text-brand-gold pt-24 pb-20 px-12 text-center relative overflow-hidden rounded-[2rem] shadow-xl mb-12">
+            <!-- ... existing hero content ... -->
+            <div class="absolute inset-0 pattern-bedouin opacity-20"></div>
+            <div class="relative z-10 flex flex-col items-center justify-center animate-float">
+                <div class="mb-8 p-6 border-4 border-brand-gold/50 rounded-full bg-white/5 backdrop-blur-sm shadow-2xl">
+                    <i data-lucide="fingerprint" class="w-24 h-24 text-brand-gold drop-shadow-lg"></i>
+                </div>
+                
+                <h1 class="text-6xl md:text-8xl font-amiri font-bold text-brand-gold mb-2 tracking-wide drop-shadow-lg">وســم</h1>
+                <p class="text-lg md:text-xl font-light tracking-widest text-brand-light opacity-80 mb-6 uppercase">Wasm Initiative</p>
+                <div class="flex items-center gap-4 justify-center text-brand-light opacity-90">
+                    <span class="h-[2px] w-12 bg-brand-gold"></span>
+                    <h2 class="text-2xl md:text-3xl font-light tracking-widest uppercase">التراث الأردني</h2>
+                    <span class="h-[2px] w-12 bg-brand-gold"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Section -->
+        <section id="about" class="bg-white rounded-[2rem] p-8 md:p-12 text-center border-t-8 border-brand-gold shadow-md mb-12 relative overflow-hidden">
+            <!-- ... existing about content ... -->
+            <div class="absolute top-4 right-4 opacity-5"><i data-lucide="quote" class="w-24 h-24 text-brand-brown"></i></div>
+            <h3 class="text-3xl font-bold text-brand-brown mb-2 font-cairo">عن المبادرة</h3>
+            <p class="text-lg leading-loose text-gray-600 max-w-3xl mx-auto font-amiri mb-10">"وسم هو البصمة التي لا تُمحى، هويةٌ نغرسها في قلب التكنولوجيا لنحفظ تاريخ الأجداد."</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="section-card p-6 flex flex-col items-center">
+                    <div class="w-12 h-12 bg-brand-cream rounded-full flex items-center justify-center text-brand-gold mb-3"><i data-lucide="target" class="w-6 h-6"></i></div>
+                    <h4 class="font-bold text-brand-brown mb-2">الهدف</h4>
+                    <p class="text-xs text-gray-500">ترسيخ الهوية الوطنية وتعزيز السياحة.</p>
+                </div>
+                <div class="section-card p-6 flex flex-col items-center">
+                    <div class="w-12 h-12 bg-brand-cream rounded-full flex items-center justify-center text-brand-gold mb-3"><i data-lucide="book-open" class="w-6 h-6"></i></div>
+                    <h4 class="font-bold text-brand-brown mb-2">الرسالة</h4>
+                    <p class="text-xs text-gray-500">تمكين الشباب وحماية التراث.</p>
+                </div>
+                <div class="section-card p-6 flex flex-col items-center">
+                    <div class="w-12 h-12 bg-brand-cream rounded-full flex items-center justify-center text-brand-gold mb-3"><i data-lucide="eye" class="w-6 h-6"></i></div>
+                    <h4 class="font-bold text-brand-brown mb-2">الرؤية</h4>
+                    <p class="text-xs text-gray-500">المرجع الأول لتوثيق الهوية.</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- W S M Analysis -->
+        <section class="mb-12 text-center">
+             <!-- ... existing content ... -->
+             <div class="flex justify-center gap-3 mb-6"><i data-lucide="pen-tool" class="text-brand-gold"></i><h3 class="text-2xl font-bold text-brand-brown">تحليل الاسم</h3></div>
+             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                 <div class="bg-white p-6 rounded-2xl border border-brand-light shadow-sm">
+                     <span class="block text-4xl font-amiri font-bold text-brand-gold mb-2">و</span>
+                     <h4 class="font-bold text-brand-brown">وصل</h4>
+                     <p class="text-xs text-gray-500">حلقة وصل بين الماضي والمستقبل.</p>
+                 </div>
+                 <div class="bg-white p-6 rounded-2xl border border-brand-light shadow-sm">
+                     <span class="block text-4xl font-amiri font-bold text-brand-brown mb-2">سـ</span>
+                     <h4 class="font-bold text-brand-brown">سمة</h4>
+                     <p class="text-xs text-gray-500">السمة المميزة للهوية الأردنية.</p>
+                 </div>
+                 <div class="bg-white p-6 rounded-2xl border border-brand-light shadow-sm">
+                     <span class="block text-4xl font-amiri font-bold text-brand-gold mb-2">ـم</span>
+                     <h4 class="font-bold text-brand-brown">موروث</h4>
+                     <p class="text-xs text-gray-500">الموروث الحضاري الذي نحفظه.</p>
+                 </div>
+             </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section class="bg-brand-brown text-white rounded-2xl p-8 flex flex-wrap justify-around shadow-lg gap-8 mb-16 relative overflow-hidden">
+            <!-- ... existing content ... -->
+            <div class="absolute inset-0 pattern-dot opacity-5"></div>
+            <div class="text-center relative z-10"><h4 class="text-3xl font-bold font-cairo text-brand-gold">+1000</h4><p class="text-[10px] opacity-80 uppercase tracking-widest">ساعة تطوعية</p></div>
+            <div class="text-center relative z-10"><h4 class="text-3xl font-bold font-cairo text-brand-gold">+12</h4><p class="text-[10px] opacity-80 uppercase tracking-widest">محافظة مغطاة</p></div>
+            <div class="text-center relative z-10"><h4 class="text-3xl font-bold font-cairo text-brand-gold">+50</h4><p class="text-[10px] opacity-80 uppercase tracking-widest">فعالية ميدانية</p></div>
+            <div class="text-center relative z-10"><h4 class="text-3xl font-bold font-cairo text-brand-gold">+500</h4><p class="text-[10px] opacity-80 uppercase tracking-widest">عضو متطوع</p></div>
+        </section>
+
+        <!-- Community Feed Section (NEW) -->
+        <section id="community" class="max-w-4xl mx-auto mb-16 scroll-mt-24 relative">
+            <div class="text-center mb-8">
+                <h3 class="text-3xl font-bold text-brand-brown">مجتمع وسم</h3>
+                <p class="text-brand-gold text-sm">ملتقى النشامى والنشميات</p>
+            </div>
+
+            <!-- Create Post Widget -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-brand-light mb-8">
+                <div class="flex gap-4">
+                    <div id="current-user-avatar" class="w-12 h-12 bg-gray-200 rounded-full flex-shrink-0 bg-cover bg-center border-2 border-brand-light" style="background-image: url('https://via.placeholder.com/150');"></div>
+                    <div class="flex-1">
+                        <textarea id="post-content" class="w-full bg-gray-50 border-0 rounded-xl p-3 focus:ring-2 focus:ring-brand-gold resize-none text-sm outline-none transition-all" rows="3" placeholder="شاركينا لحظاتك التراثية يا نشمي..."></textarea>
+                        <div class="flex justify-between items-center mt-3">
+                            <button class="text-gray-400 hover:text-brand-brown transition-colors relative overflow-hidden group">
+                                <i data-lucide="image" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+                                <input type="file" id="post-image" class="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" onchange="previewPostImage(this)">
+                            </button>
+                            <button onclick="submitPost()" class="bg-brand-brown text-white px-6 py-2 rounded-xl text-sm font-bold hover:bg-brand-gold transition-colors shadow-md">نشر</button>
+                        </div>
+                        <div id="post-img-preview" class="hidden mt-2 relative w-fit group">
+                            <img src="" class="h-20 rounded-lg border border-gray-200 object-cover">
+                            <button onclick="clearPostImage()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition-colors"><i data-lucide="x" class="w-3 h-3"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feed Stream -->
+            <div id="feed-stream" class="space-y-6">
+                <!-- Posts will be injected here -->
+            </div>
+        </section>
+
+        <!-- Partners -->
+        <section class="mb-16 text-center">
+            <div class="flex justify-center gap-2 mb-6"><h3 class="text-2xl font-bold text-brand-brown">شركاء النجاح</h3><i data-lucide="handshake" class="text-brand-gold"></i></div>
+            <div class="flex flex-wrap justify-center gap-8" id="partners-list"></div>
+        </section>
+
+        <!-- Team Section -->
+        <section class="mb-16">
+            <div class="flex items-center gap-2 mb-6 border-b border-brand-light pb-2">
+                <i data-lucide="users" class="w-6 h-6 text-brand-gold"></i>
+                <h3 class="text-2xl font-bold text-brand-brown">فريق العمل</h3>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="team-list"></div>
+        </section>
+
+        <!-- Roadmap -->
+        <section class="mb-16">
+             <!-- ... existing content ... -->
+             <div class="flex items-center gap-2 mb-6 border-b border-brand-light pb-2">
+                <i data-lucide="calendar" class="w-6 h-6 text-brand-gold"></i>
+                <h3 class="text-2xl font-bold text-brand-brown">خارطة الطريق</h3>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4" id="roadmap-list"></div>
+        </section>
+        
+        <!-- Governorates -->
+        <section class="mb-16">
+             <!-- ... existing content ... -->
+             <div class="text-center mb-8"><h3 class="text-2xl font-bold text-brand-brown">كنوز المحافظات</h3></div>
+             <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="governorates-list"></div>
+        </section>
+
+        <!-- Events -->
+        <section id="events">
+            <!-- ... existing content ... -->
+            <div class="text-center mb-12">
+                <span class="text-brand-gold text-sm font-bold tracking-widest uppercase">شاركنا اللحظة</span>
+                <h3 class="text-4xl font-bold text-brand-brown mt-2">أجندة الفعاليات</h3>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="events-list-display"></div>
+        </section>
+
+        <!-- ================= INTERACTIVE ZONE (TOOLS) ================= -->
+        <div id="interactive" class="bg-[#FAF8F5] rounded-[2rem] p-8 md:p-12 border-2 border-dashed border-brand-light space-y-12 scroll-mt-24">
+            <!-- ... existing interactive zone content ... -->
+            <div class="text-center">
+                <h2 class="text-3xl font-bold text-brand-brown mb-2">واحة وسم التفاعلية</h2>
+                <p class="text-sm text-gray-500">مساحة للإبداع والذكاء الاصطناعي ✨</p>
+            </div>
+            
+            <!-- Digital Museum -->
+            <section>
+                 <div class="flex justify-center gap-2 mb-6"><i data-lucide="award" class="text-brand-gold"></i><h3 class="text-xl font-bold text-brand-brown">متحف وسم الرقمي</h3></div>
+                 <div class="grid grid-cols-2 md:grid-cols-5 gap-4" id="museum-list"></div>
+            </section>
+            
+            <!-- Dictionary & Proverbs -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                 <div>
+                    <h4 class="font-bold text-brand-brown mb-4 border-b border-brand-light pb-2">قاموس اللهجة</h4>
+                    <div class="grid grid-cols-2 gap-4" id="dialect-list"></div>
+                 </div>
+                 <div class="bg-brand-brown text-white rounded-2xl p-6 text-center flex flex-col justify-center relative">
+                    <i data-lucide="quote" class="absolute top-4 right-4 opacity-10 w-12 h-12"></i>
+                    <h4 class="font-bold text-brand-gold mb-4">كنز الأمثال</h4>
+                    <p id="proverb-text" class="text-xl font-amiri mb-2"></p>
+                    <p id="proverb-meaning" class="text-xs text-brand-light mb-4"></p>
+                    <button onclick="nextProverb()" class="bg-brand-gold text-brand-brown px-4 py-1 rounded-full text-xs font-bold w-fit mx-auto hover:bg-white transition-colors">مثل آخر</button>
+                 </div>
+            </div>
+
+            <!-- Tools Grid (Updated with New Features) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                
+                <!-- 1. AI Nashmi -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-brand-light">
+                     <h3 class="text-lg font-bold text-brand-brown mb-4 flex items-center gap-2"><i data-lucide="message-square" class="text-brand-gold"></i> النشمي (مساعد ذكي)</h3>
+                     <div class="flex gap-2 mb-4">
+                        <input type="text" id="hakawati-q" placeholder="اسألني عن التراث..." class="flex-1 p-3 border rounded-xl text-sm focus:outline-none focus:border-brand-gold">
+                        <button onclick="askHakawati()" class="bg-brand-brown text-white px-4 rounded-xl text-sm font-bold hover:bg-[#5d4a3a]">اسأل</button>
+                    </div>
+                    <div class="bg-[#FAF8F5] p-4 rounded-xl border border-brand-light text-sm leading-relaxed text-brand-brown min-h-[60px]" id="hakawati-res">أنا جاهز لأي سؤال يا نشمي...</div>
+                </div>
+
+                <!-- 2. Wasm Kitchen -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-brand-light">
+                    <h3 class="text-lg font-bold text-brand-brown mb-4 flex items-center gap-2"><i data-lucide="utensils" class="text-brand-gold"></i> مطبخ وسم</h3>
+                    <div class="flex gap-2 mb-4">
+                        <input type="text" id="kitchen-ing" placeholder="المكونات..." class="flex-1 p-3 border rounded-xl text-sm focus:outline-none focus:border-brand-gold">
+                        <button onclick="generateRecipe()" class="bg-brand-brown text-white px-4 rounded-xl text-sm font-bold hover:bg-[#5d4a3a]">طبخ</button>
+                    </div>
+                    <div id="kitchen-result" class="hidden bg-[#FAF8F5] p-4 rounded-xl border border-brand-light text-sm leading-relaxed text-brand-brown"></div>
+                </div>
+
+                <!-- 3. Trip Planner -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-brand-light">
+                    <h3 class="text-lg font-bold text-brand-brown mb-4 flex items-center gap-2"><i data-lucide="compass" class="text-brand-gold"></i> المخطط السياحي</h3>
+                    <div class="flex gap-2 mb-4">
+                        <select id="trip-city" class="flex-1 p-3 border rounded-xl text-sm focus:outline-none focus:border-brand-gold bg-white"></select>
+                        <button onclick="generateTrip()" class="bg-brand-brown text-white px-4 rounded-xl text-sm font-bold hover:bg-[#5d4a3a]">خطط</button>
+                    </div>
+                    <div id="trip-result" class="hidden bg-[#FAF8F5] p-4 rounded-xl border border-brand-light text-sm leading-relaxed text-brand-brown"></div>
+                </div>
+
+                <!-- 4. Rababa Poet -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-brand-light">
+                    <h3 class="text-lg font-bold text-brand-brown mb-4 flex items-center gap-2"><i data-lucide="music" class="text-brand-gold"></i> شاعر الربابة</h3>
+                    <div class="flex gap-2 mb-4">
+                        <input type="text" id="poet-topic" placeholder="موضوع القصيدة..." class="flex-1 p-3 border rounded-xl text-sm focus:outline-none focus:border-brand-gold">
+                        <button onclick="generatePoem()" class="bg-brand-brown text-white px-4 rounded-xl text-sm font-bold hover:bg-[#5d4a3a]">نظم</button>
+                    </div>
+                    <div id="poet-result" class="hidden bg-[#FAF8F5] p-4 rounded-xl border border-brand-light text-sm leading-loose font-amiri text-center text-brand-brown whitespace-pre-line"></div>
+                </div>
+
+                <!-- 5. Name Story -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-brand-light">
+                    <h3 class="text-lg font-bold text-brand-brown mb-4 flex items-center gap-2"><i data-lucide="fingerprint" class="text-brand-gold"></i> وسم الأسماء</h3>
+                    <div class="flex gap-2 mb-4">
+                        <input type="text" id="visitor-name" placeholder="اكتب اسمك..." class="flex-1 p-3 border rounded-xl text-sm focus:outline-none focus:border-brand-gold">
+                        <button onclick="generateNameStory()" class="bg-brand-brown text-white px-4 rounded-xl text-sm font-bold hover:bg-[#5d4a3a]">انسج</button>
+                    </div>
+                    <div id="name-story-result" class="hidden bg-[#FAF8F5] p-4 rounded-xl border border-brand-light text-sm leading-relaxed font-amiri text-brand-brown"></div>
+                </div>
+
+                <!-- 6. Dialect Translator -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-brand-light">
+                    <h3 class="text-lg font-bold text-brand-brown mb-4 flex items-center gap-2"><i data-lucide="languages" class="text-brand-gold"></i> المترجم النشمي</h3>
+                    <div class="flex gap-2 mb-4">
+                        <input type="text" id="translate-text" placeholder="اكتب جملة بالفصحى..." class="flex-1 p-3 border rounded-xl text-sm focus:outline-none focus:border-brand-gold">
+                        <button onclick="translateToDialect()" class="bg-brand-brown text-white px-4 rounded-xl text-sm font-bold hover:bg-[#5d4a3a]">ترجم</button>
+                    </div>
+                    <div id="translate-result" class="hidden bg-[#FAF8F5] p-4 rounded-xl border border-brand-light text-sm font-bold text-brand-brown"></div>
+                </div>
+                
+                 <!-- 7. Proverb Advisor -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-brand-light">
+                    <h3 class="text-lg font-bold text-brand-brown mb-4 flex items-center gap-2"><i data-lucide="lightbulb" class="text-brand-gold"></i> حكيم الأمثال</h3>
+                    <div class="flex gap-2 mb-4">
+                        <input type="text" id="proverb-topic" placeholder="الموقف (خيانة، كرم...)" class="flex-1 p-3 border rounded-xl text-sm focus:outline-none focus:border-brand-gold">
+                        <button onclick="recommendProverb()" class="bg-brand-brown text-white px-4 rounded-xl text-sm font-bold hover:bg-[#5d4a3a]">انصحني</button>
+                    </div>
+                    <div id="proverb-result" class="hidden bg-[#FAF8F5] p-4 rounded-xl border border-brand-light text-sm leading-relaxed text-brand-brown"></div>
+                </div>
+
+            </div>
+
+            <!-- Quiz & Pledge -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
+                <!-- ... existing quiz content ... -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-brand-light text-center">
+                    <h3 class="text-xl font-bold text-brand-brown mb-4"><i data-lucide="award" class="text-brand-gold inline-block align-middle"></i> تحدي وسم</h3>
+                    <div id="quiz-start">
+                        <button onclick="startQuiz()" class="bg-brand-gold text-white px-8 py-2 rounded-xl font-bold shadow-md hover:bg-brand-brown transition-colors">ابدأ التحدي</button>
+                    </div>
+                    <div id="quiz-question" class="hidden text-right">
+                        <h4 id="q-text" class="text-lg font-bold mb-4 text-brand-brown"></h4>
+                        <div id="q-options" class="space-y-2"></div>
+                    </div>
+                    <div id="quiz-result" class="hidden">
+                        <h4 class="text-2xl font-bold text-brand-gold mb-2" id="final-score"></h4>
+                        <p id="final-title" class="text-brand-brown font-bold mb-4"></p>
+                        <button onclick="resetQuiz()" class="text-sm underline text-gray-500">إعادة المحاولة</button>
+                    </div>
+                </div>
+                
+                 <!-- Memory Game Section -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-brand-light text-center">
+                    <h3 class="text-xl font-bold text-brand-brown mb-4"><i data-lucide="gamepad-2" class="text-brand-gold inline-block align-middle"></i> ذاكرة التراث</h3>
+                    <div id="memory-game" class="grid grid-cols-4 gap-2 max-w-xs mx-auto perspective mb-4"></div>
+                    <button onclick="initMemoryGame()" class="bg-brand-brown text-white px-6 py-2 rounded-xl text-sm font-bold hover:bg-[#5d4a3a]">لعبة جديدة</button>
+                </div>
+            </div>
+             
+             <!-- Pledge -->
+             <div class="bg-brand-brown text-white rounded-2xl p-6 shadow-sm flex flex-col items-center justify-center text-center mt-12">
+                <h3 class="text-xl font-bold mb-4">ميثاق وسم</h3>
+                <button id="pledge-btn" onclick="handlePledge()" class="bg-transparent border-2 border-brand-gold text-brand-gold px-8 py-2 rounded-xl font-bold hover:bg-brand-gold hover:text-white transition-colors flex items-center gap-2">
+                    <i data-lucide="feather" class="w-5 h-5"></i> وقع الميثاق
+                </button>
+                <p class="text-sm mt-4 opacity-80">انضم إلى <span id="pledge-count" class="font-bold text-brand-gold">1,250</span> موقع</p>
+            </div>
+        </div>
+
+        <!-- NEW: Success Stories Section (Restored Here) -->
+        <section id="success-stories" class="mb-16 mt-16">
+            <div class="text-center mb-8">
+                <span class="text-brand-gold text-sm font-bold tracking-widest uppercase">نماذج نفخر بها</span>
+                <h3 class="text-3xl font-bold text-brand-brown mt-2">قصص النجاح</h3>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="success-stories-list">
+                <!-- JS Generated Content -->
+            </div>
+        </section>
+
+        <!-- Registration -->
+        <section id="register" class="bg-brand-brown rounded-3xl p-8 md:p-16 text-white text-center mt-12 scroll-mt-24">
+             <!-- ... existing registration form ... -->
+             <h3 class="text-3xl font-bold mb-6 font-cairo text-brand-gold">انضم لعائلة وسم</h3>
+             <form onsubmit="handleRegister(event)" class="max-w-xl mx-auto space-y-4 text-brand-brown">
+                 <input type="text" id="reg-name" placeholder="الاسم الكامل" required class="w-full p-3 rounded-xl focus:outline-none">
+                 <div class="grid grid-cols-2 gap-4">
+                     <input type="tel" id="reg-phone" placeholder="رقم الهاتف" required class="w-full p-3 rounded-xl focus:outline-none">
+                     <input type="number" id="reg-age" placeholder="العمر" required class="w-full p-3 rounded-xl focus:outline-none text-center">
+                 </div>
+                 <div class="relative">
+                    <select id="reg-city" class="w-full p-3 rounded-xl focus:outline-none appearance-none cursor-pointer">
+                        <option value="" class="text-gray-400">اختر المحافظة</option>
+                    </select>
+                 </div>
+                 <input type="text" id="reg-uni" placeholder="الجامعة / الجهة" class="w-full p-3 rounded-xl focus:outline-none">
+                 <textarea id="reg-reason" placeholder="لماذا ترغب بالانضمام؟" class="w-full p-3 rounded-xl focus:outline-none h-24 resize-none"></textarea>
+                 
+                 <button type="submit" class="w-full bg-brand-gold text-white font-bold py-3 rounded-xl hover:bg-white hover:text-brand-brown transition-colors">إرسال الطلب</button>
+             </form>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center pt-12 pb-6 text-brand-brown opacity-80 text-xs">
+            <p>© <span id="year"></span> مبادرة وسم التراث الأردني | جميع الحقوق محفوظة</p>
+             <p class="mt-2 text-brand-gold font-bold">تم تطوير الموقع بواسطة معاذ احمد الخوالدة</p>
+             <div class="flex justify-center gap-4 mt-4">
+                 <button onclick="toggleModal('login-modal')" class="flex items-center gap-1 hover:text-brand-gold"><i data-lucide="lock" class="w-3 h-3"></i> الإدارة</button>
+                 <button onclick="toggleModal('complaint-modal')" class="flex items-center gap-1 hover:text-brand-gold"><i data-lucide="message-square-warning" class="w-3 h-3"></i> شكاوى واقتراحات</button>
+             </div>
+        </footer>
+
+        <!-- Audio (YouTube Source) -->
+        <div id="youtube-audio-container" class="absolute opacity-0 pointer-events-none w-0 h-0 overflow-hidden"></div>
+
+        <!-- Floating Action -->
+        <a href="https://wa.me/962700000000" target="_blank" class="fixed bottom-6 right-6 bg-[#25D366] text-white p-3 rounded-full shadow-xl hover:scale-110 transition-transform z-40 border-2 border-white">
+            <i data-lucide="phone" class="w-6 h-6"></i>
+        </a>
+
+    </div>
+
+    <!-- Script -->
+    <script>
+        // Data
+        const governorates = [
+            { name: 'عمّان', icon: 'landmark', desc: 'عاصمة المملكة وقلبها النابض، تجمع بين عراقة المدرج الروماني وحداثة العبدلي.' },
+            { name: 'إربد', icon: 'wheat', desc: 'عروس الشمال وسهول حوران الخصبة، موطن الشعراء وآثار أم قيس.' }, 
+            { name: 'البلقاء', icon: 'history', desc: 'حاضرة السلط العريقة، تمتاز بمحمية ضانا وطبيعتها الخلابة وتراثها المعماري الأصفر.' },
+            { name: 'جرش', icon: 'users', desc: 'مدينة الألف عمود، إحدى أكبر المدن الرومانية المحفوظة في العالم.' },
+            { name: 'عجلون', icon: 'trees', desc: 'رئة الأردن الخضراء، تشتهر بقلعتها التاريخية وغاباتها الكثيفة.' },
+            { name: 'المفرق', icon: 'tent', desc: 'بوابة الصحراء والبادية، تحتضن أوائل الكنائس في رحاب.' },
+            { name: 'الزرقاء', icon: 'cpu', desc: 'مدينة الجند والصناعة، ومركز حيوي يربط طرق التجارة القديمة.' },
+            { name: 'مأدبا', icon: 'palette', desc: 'مدينة الفسيفساء، تضم خارطة الأراضي المقدسة وتاريخاً مسيحياً عريقاً.' },
+            { name: 'الكرك', icon: 'shield', desc: 'مدينة المجد والقلعة الشامخة، تاريخها سطر بدماء الشهداء.' },
+            { name: 'الطفيلة', icon: 'mountain', desc: 'الهاشمية، تمتاز بمحمية ضانا وطبيعتها الجبلية الساحرة.' },
+            { name: 'معان', icon: 'sparkles', desc: 'بوابة الجنوب وحاضنة البترا، المدينة الوردية إحدى عجائب الدنيا.' },
+            { name: 'العقبة', icon: 'waves', desc: 'ثغر الأردن الباسم، ومنفذه البحري الوحيد بجمال شعابه المرجانية.' }
+        ];
+
+        // Converted to Array of Objects for Image Support (Mutable with let)
+        let partnersData = [
+            { name: 'مؤسسة ولي العهد', img: '' },
+            { name: 'جامعة آل البيت', img: '' },
+            { name: 'وزارة الشباب', img: '' },
+            { name: 'التراث الملكي الأردني', img: '' },
+            { name: 'وزارة الثقافة', img: '' },
+            { name: 'وزارة السياحة', img: '' }
+        ];
+        
+        // Changed to 'let' to allow modification via Admin Panel
+        let teamMembers = [
+            { name: "معاذ الخوالدة", role: "رئيس المبادرة", desc: "المشرف العام." },
+            { name: "أيهم الخوالدة", role: "نائب الرئيس", desc: "مدير العمليات." },
+            { name: "سجود شديفات", role: "عضو فريق", desc: "التنسيق والمتابعة." },
+            { name: "فرح الزيود", role: "عضو فريق", desc: "الأنشطة الميدانية." },
+            { name: "الاء عليمات", role: "عضو فريق", desc: "التوثيق والمحتوى." },
+            { name: "نور الشرقاوي", role: "عضو فريق", desc: "العلاقات العامة." }
+        ];
+
+        const roadmap = [
+            { title: "التأسيس", desc: "إطلاق الهوية." },
+            { title: "الانطلاق", desc: "جولات تعريفية." },
+            { title: "المنصة", desc: "مكتبة رقمية." },
+            { title: "التوسع", desc: "شراكات استراتيجية." }
+        ];
+        
+        const museumItems = [
+            { title: "الدلة", icon: 'coffee' }, { title: "المهباش", icon: 'hammer' }, 
+            { title: "الشماغ", icon: 'smile' }, { title: "الثوب", icon: 'shirt' }, { title: "الربابة", icon: 'music' }
+        ];
+        
+        const dialectTerms = [
+            { word: "هسّا", meaning: "الآن" }, { word: "قوّطر", meaning: "ذهب" },
+            { word: "يا باي", meaning: "يا الهي" }, { word: "خوصة", meaning: "سكين" }
+        ];
+        
+        const proverbs = [
+             { text: "يا ماخذ القرد على ماله..", meaning: "لا تطمع بالمال" },
+             { text: "الجار قبل الدار", meaning: "أهمية الجيرة" }
+        ];
+
+        const questionPool = [
+            { q: "ما هي المدينة الوردية؟", options: ["البترا", "العقبة", "مادبا"], correct: 0 },
+            { q: "أكلة أردنية تشتهر بالجميد؟", options: ["المسخن", "المنسف", "المقلوبة"], correct: 1 },
+            { q: "أين تقع قلعة الكرك؟", options: ["في الشمال", "في الجنوب", "في الوسط"], correct: 1 }
+        ];
+
+        // Admin Data
+        let eventsList = [
+            { id: 1, title: "جولة تصوير", date: "15 آذار", location: "عمّان" },
+            { id: 2, title: "ورشة توثيق", date: "22 آذار", location: "Zoom" }
+        ];
+        let tickerText = "✨ باب التطوع مفتوح الآن لموسم الصيف ✨";
+        
+        // Community Feed Data
+        let communityPosts = [
+            { id: 1, userId: "101", userName: "معاذ الخوالدة", userImg: "https://via.placeholder.com/150", content: "صباح الخير من مدينة السلط العريقة 🇯🇴", image: "", timestamp: "منذ ساعتين", approved: true, likes: 5, comments: [] },
+            { id: 2, userId: "999", userName: "زائر نشمي", userImg: "https://via.placeholder.com/150", content: "صورة رائعة للبترا التقطتها اليوم!", image: "", timestamp: "منذ 10 دقائق", approved: false, likes: 0, comments: [] }
+        ];
+
+        // New Data Arrays for Complaints and Join Requests
+        let complaintsDB = [
+            { id: 1, name: 'أحمد', type: 'suggestion', message: 'يرجى إضافة قسم خاص للأطفال لتعليمهم التراث بطريقة مبسطة.', date: '2023-10-27' }
+        ];
+        let joinRequestsDB = [
+            { id: 1, name: 'سارة محمد', phone: '0790000000', age: 22, city: 'عمان', uni: 'الجامعة الأردنية', reason: 'أحب العمل التطوعي وخدمة مجتمعي', date: '2023-10-26' }
+        ];
+
+        // NEW: Success Stories DB
+        let successStoriesDB = [
+            {
+                id: 1,
+                name: "أحمد الفلاح",
+                phrase: "حارس الحرف اليدوية",
+                description: "بدأ أحمد مشروعه الصغير من ورشة منزله في جرش، حيث أعاد إحياء حرفة صناعة السجاد اليدوي باستخدام الصوف الطبيعي والأصباغ النباتية التقليدية. \n\nاليوم، تصدر منتجاته إلى مختلف دول العالم، مما ساهم في توفير فرص عمل لأكثر من 20 سيدة في قريته، وأصبح نموذجاً للشباب الأردني المكافح.",
+                image: "https://via.placeholder.com/300"
+            },
+            {
+                id: 2,
+                name: "ليلى العبادي",
+                phrase: "صوت البادية",
+                description: "أسست ليلى أول منصة رقمية لتوثيق القصائد النبطية بصوت كبار السن في البادية الشمالية. \n\nبفضل جهدها، تم حفظ مئات القصائد التي كانت مهددة بالنسيان، وحصلت مبادرتها على جائزة التميز الثقافي.",
+                image: "https://via.placeholder.com/300"
+            }
+        ];
+
+        // Notifications Data
+        let adminNotifications = [];
+
+        // User State
+        let currentUser = null; 
+        // Dummy user database (in memory)
+        let usersDB = [
+            { id: 1, name: "متطوع تجريبي", identifier: "test", pass: "123", bio: "أحب التراث", location: "عمان", img: "https://via.placeholder.com/150" }
+        ];
+        
+        // --- GOOGLE FORM CONFIGURATION ---
+        const GOOGLE_FORM_CONFIG = {
+            // رابط النموذج للاستقبال (formResponse)
+            formActionURL: "https://docs.google.com/forms/d/e/1FAIpQLSc7S4ZX_PwSf2kQ5i0tWspgw0Md5Y5y4hiKnwBEgGfMoIeCAw/formResponse", 
+            
+            // معرفات الحقول المستخرجة من الرابط الذي أرسلته
+            fields: {
+                name: "entry.681561428",       // الاسم
+                phone: "entry.171896779",      // رقم الهاتف
+                email: "entry.1642845777",     // البريد الالكتروني
+                dob: "entry.176409448",        // العمر/التاريخ
+                bio: "entry.684399890"         // نبذة تعريفية
+            }
+        };
+
+        // Initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                document.getElementById('intro-screen').classList.add('fade-out');
+                // Ensure main-content exists before removing class
+                const mainContent = document.getElementById('main-content');
+                if(mainContent) mainContent.classList.remove('opacity-0');
+            }, 3000);
+            
+            const yearEl = document.getElementById('year');
+            if(yearEl) yearEl.textContent = new Date().getFullYear();
+            
+            updateTickerUI();
+            
+            renderPartners();
+            renderTeam();
+            renderRoadmap();
+            renderMuseum();
+            renderDialect();
+            renderProverb();
+            renderGovernorates();
+            renderEvents(); 
+            renderSuccessStories(); // NEW
+            
+            // Populate Selects
+            const tripSel = document.getElementById('trip-city');
+            const regSel = document.getElementById('reg-city');
+            governorates.forEach(g => {
+                const opt = `<option value="${g.name}">${g.name}</option>`;
+                if(tripSel) tripSel.innerHTML += opt;
+                if(regSel) regSel.innerHTML += opt;
+            });
+            
+            lucide.createIcons();
+            initMemoryGame();
+        });
+
+        // Render Helpers (Partners, Team, etc.)...
+        // ... (Same as before) ...
+        function renderPartners() {
+            const el = document.getElementById('partners-list');
+            el.innerHTML = '';
+            partnersData.forEach(p => {
+                let imgContent = `<div class="w-16 h-16 rounded-full border border-[#C5A065] flex items-center justify-center text-[10px] text-gray-400 bg-white shadow-sm">شعار</div>`;
+                if(p.img && p.img.trim() !== "") {
+                    imgContent = `<img src="${p.img}" class="w-16 h-16 rounded-full border border-[#C5A065] object-cover bg-white shadow-sm hover:scale-110 transition-transform">`;
+                }
+                el.innerHTML += `<div class="flex flex-col items-center gap-2 group cursor-default">${imgContent}<span class="text-xs font-bold text-brand-brown group-hover:text-brand-gold transition-colors">${p.name}</span></div>`;
+            });
+        }
+        
+        function renderTeam() {
+            const el = document.getElementById('team-list');
+            el.innerHTML = '';
+            teamMembers.forEach(m => {
+                el.innerHTML += `
+                <div class="section-card p-4 flex items-center gap-4">
+                    <div class="w-12 h-12 bg-[#4A3728] rounded-full flex items-center justify-center text-[#C5A065]"><i data-lucide="user" class="w-6 h-6"></i></div>
+                    <div>
+                        <h4 class="font-bold text-[#4A3728]">${m.name}</h4>
+                        <span class="text-xs text-[#C5A065] font-bold block">${m.role}</span>
+                        <p class="text-[10px] text-gray-500 mt-1">${m.desc}</p>
+                    </div>
+                </div>`;
+            });
+        }
+
+        function renderRoadmap() {
+             const el = document.getElementById('roadmap-list');
+             roadmap.forEach((r, i) => {
+                 el.innerHTML += `
+                 <div class="bg-[#FAF8F5] p-4 rounded-xl border border-[#eaddcf] relative mt-4">
+                    <div class="absolute -top-3 right-4 w-6 h-6 bg-[#C5A065] text-white rounded-full flex items-center justify-center text-xs font-bold">${i+1}</div>
+                    <h4 class="font-bold text-[#4A3728] mt-2">${r.title}</h4>
+                    <p class="text-xs text-gray-500">${r.desc}</p>
+                 </div>`;
+             });
+        }
+        
+        function renderMuseum() {
+            const el = document.getElementById('museum-list');
+            museumItems.forEach(i => {
+                el.innerHTML += `<div class="p-4 bg-white border border-[#EADDCD] rounded-xl text-center"><i data-lucide="${i.icon}" class="w-8 h-8 mx-auto text-[#C5A065] mb-2"></i><span class="text-sm font-bold text-[#4A3728]">${i.title}</span></div>`;
+            });
+        }
+        
+        function renderDialect() {
+            const el = document.getElementById('dialect-list');
+            dialectTerms.forEach(t => {
+                el.innerHTML += `<div class="p-3 bg-white border border-[#EADDCD] rounded-lg text-center"><span class="block font-bold text-[#C5A065]">${t.word}</span><span class="text-xs text-gray-500">${t.meaning}</span></div>`;
+            });
+        }
+        
+        let currentProverbIdx = 0;
+        function renderProverb() {
+            const textEl = document.getElementById('proverb-text');
+            const meanEl = document.getElementById('proverb-meaning');
+            if(textEl) textEl.innerText = `"${proverbs[currentProverbIdx].text}"`;
+            if(meanEl) meanEl.innerText = proverbs[currentProverbIdx].meaning;
+        }
+        function nextProverb() {
+            currentProverbIdx = (currentProverbIdx + 1) % proverbs.length;
+            renderProverb();
+        }
+        
+        function renderGovernorates() {
+             const el = document.getElementById('governorates-list');
+             governorates.forEach(g => {
+                 el.innerHTML += `
+                 <div class="bg-white border border-[#EADDCD] p-4 rounded-xl text-center hover:shadow-md transition-all group hover:-translate-y-1">
+                    <i data-lucide="${g.icon}" class="w-8 h-8 mx-auto text-[#C5A065] mb-2 group-hover:scale-110 transition-transform"></i>
+                    <h4 class="font-bold text-[#4A3728] mb-2">${g.name}</h4>
+                    <p class="text-xs text-gray-500 leading-relaxed px-2">${g.desc}</p>
+                 </div>`;
+             });
+        }
+
+        // Events Render
+        function renderEvents() {
+            const el = document.getElementById('events-list-display');
+            if(!el) return;
+            el.innerHTML = '';
+            eventsList.forEach(ev => {
+                el.innerHTML += `
+                <div class="section-card p-6 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-2 h-full bg-[#C5A065]"></div>
+                    <div class="flex justify-between items-start mb-4 pl-2">
+                        <span class="text-xs font-bold bg-[#FAF8F5] text-[#4A3728] px-3 py-1 rounded-full border border-[#EADDCD]">${ev.date}</span>
+                    </div>
+                    <h4 class="font-bold text-[#4A3728] text-lg mb-2">${ev.title}</h4>
+                    <p class="text-xs text-gray-500 flex items-center gap-1 mb-4"><i data-lucide="map-pin" class="w-3 h-3"></i> ${ev.location}</p>
+                    <button onclick="registerForEvent('${ev.title}')" class="w-full py-2 rounded-lg bg-[#4A3728] text-white text-xs font-bold hover:bg-[#C5A065] transition-colors">تسجيل</button>
+                </div>`;
+            });
+            lucide.createIcons();
+        }
+
+        function registerForEvent(title) {
+            if(!currentUser) {
+                toggleModal('auth-portal'); // Prompt login
+            } else {
+                alert(`تم تسجيلك في فعالية "${title}" بنجاح يا ${currentUser.name}!`);
+            }
+        }
+
+        // Ticker
+        function updateTickerUI() {
+            const el = document.getElementById('ticker-content');
+            const inp = document.getElementById('ticker-input');
+            if(el) el.innerHTML = tickerText;
+            if(inp) inp.value = tickerText;
+        }
+        function updateTicker() {
+            tickerText = document.getElementById('ticker-input').value;
+            updateTickerUI();
+            alert('تم التحديث');
+        }
+
+        // --- NEW FEATURES LOGIC ---
+
+        // 1. Complaint Submission
+        function submitComplaint() {
+            const name = document.getElementById('comp-name').value || "فاعل خير";
+            const type = document.getElementById('comp-type').value;
+            const msg = document.getElementById('comp-msg').value;
+
+            if(!msg) { alert('يرجى كتابة الرسالة'); return; }
+
+            complaintsDB.push({
+                id: Date.now(),
+                name: name,
+                type: type,
+                message: msg,
+                date: new Date().toLocaleDateString('ar-JO')
+            });
+
+            document.getElementById('comp-msg').value = '';
+            toggleModal('complaint-modal');
+            alert('شكراً لك! تم إيصال رسالتك للإدارة بنجاح.');
+        }
+
+        // 2. Updated Registration Logic to save to joinRequestsDB
+        function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('reg-name').value;
+            const phone = document.getElementById('reg-phone').value;
+            const age = document.getElementById('reg-age').value;
+            const city = document.getElementById('reg-city').value;
+            const uni = document.getElementById('reg-uni').value;
+            const reason = document.getElementById('reg-reason').value;
+
+            joinRequestsDB.push({
+                id: Date.now(),
+                name, phone, age, city, uni, reason,
+                date: new Date().toLocaleDateString('ar-JO')
+            });
+
+            // Clear Form
+            e.target.reset();
+            alert('تم استلام طلبك بنجاح! سنقوم بمراجعته والتواصل معك قريباً.');
+        }
+
+        // --- NEW: Success Stories Logic ---
+        function renderSuccessStories() {
+            const el = document.getElementById('success-stories-list');
+            if(!el) return;
+            el.innerHTML = '';
+            
+            successStoriesDB.forEach(s => {
+                el.innerHTML += `
+                <div class="story-card bg-white p-4 rounded-xl border border-brand-light flex flex-col items-center text-center hover:border-brand-gold group" onclick="openStoryModal(${s.id})">
+                    <img src="${s.image}" class="w-20 h-20 rounded-full object-cover border-2 border-brand-light group-hover:border-brand-gold transition-colors mb-3">
+                    <h4 class="font-bold text-brand-brown mb-1">${s.name}</h4>
+                    <p class="text-xs text-brand-gold font-bold">${s.phrase}</p>
+                </div>
+                `;
+            });
+        }
+
+        function openStoryModal(id) {
+            const story = successStoriesDB.find(s => s.id === id);
+            if (!story) return;
+
+            document.getElementById('modal-story-img').src = story.image;
+            document.getElementById('modal-story-name').innerText = story.name;
+            document.getElementById('modal-story-phrase').innerText = story.phrase;
+            document.getElementById('modal-story-desc').innerText = story.description;
+
+            toggleModal('story-details-modal');
+        }
+
+        function handleAddStory() {
+            const name = document.getElementById('new-story-name').value;
+            const phrase = document.getElementById('new-story-phrase').value;
+            const desc = document.getElementById('new-story-desc').value;
+            const imgInput = document.getElementById('new-story-img');
+
+            if(!name || !phrase || !desc) { alert('يرجى تعبئة جميع الحقول'); return; }
+
+            const addStory = (imgUrl) => {
+                successStoriesDB.push({
+                    id: Date.now(),
+                    name: name,
+                    phrase: phrase,
+                    description: desc,
+                    image: imgUrl
+                });
+                renderSuccessStories(); // Public
+                renderAdminStories(); // Admin
+                
+                // Reset form
+                document.getElementById('new-story-name').value = '';
+                document.getElementById('new-story-phrase').value = '';
+                document.getElementById('new-story-desc').value = '';
+                document.getElementById('new-story-img').value = '';
+                
+                alert('تمت إضافة القصة بنجاح');
+            };
+
+            if(imgInput.files && imgInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => addStory(e.target.result);
+                reader.readAsDataURL(imgInput.files[0]);
+            } else {
+                addStory("https://via.placeholder.com/300");
+            }
+        }
+
+        function deleteStory(id) {
+            if(confirm('هل أنت متأكد من حذف هذه القصة؟')) {
+                successStoriesDB = successStoriesDB.filter(s => s.id !== id);
+                renderSuccessStories();
+                renderAdminStories();
+            }
+        }
+
+        // --- ADMIN: RENDER FUNCTIONS FOR NEW TABS ---
+
+        function renderAdminStories() {
+            const el = document.getElementById('admin-stories-list');
+            if(!el) return;
+            el.innerHTML = '';
+            
+            successStoriesDB.forEach(s => {
+                el.innerHTML += `
+                <div class="flex items-center justify-between p-3 border-b border-gray-100 last:border-0">
+                    <div class="flex items-center gap-3">
+                        <img src="${s.image}" class="w-10 h-10 rounded-full object-cover">
+                        <div>
+                            <p class="font-bold text-brand-brown text-sm">${s.name}</p>
+                            <p class="text-xs text-brand-gold">${s.phrase}</p>
+                        </div>
+                    </div>
+                    <button onclick="deleteStory(${s.id})" class="text-red-400 hover:text-red-600 bg-red-50 p-2 rounded-lg transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                </div>`;
+            });
+            lucide.createIcons();
+        }
+
+        function renderAdminComplaints() {
+            const el = document.getElementById('admin-complaints-list');
+            el.innerHTML = '';
+            if(complaintsDB.length === 0) {
+                el.innerHTML = '<p class="col-span-2 text-center text-gray-400">لا توجد رسائل جديدة.</p>';
+                return;
+            }
+            complaintsDB.forEach(c => {
+                // FIXED: Changed colors from blue to brand brown/light
+                const typeClass = c.type === 'complaint' ? 'text-red-500 bg-red-50' : 'text-brand-brown bg-brand-light/20';
+                const typeText = c.type === 'complaint' ? 'شكوى' : 'اقتراح';
+                el.innerHTML += `
+                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm relative group">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="font-bold text-brand-brown">${c.name}</span>
+                        <span class="text-xs px-2 py-1 rounded-full ${typeClass} font-bold">${typeText}</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-2 leading-relaxed">${c.message}</p>
+                    <span class="text-xs text-gray-400 block text-left">${c.date}</span>
+                    <button class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600 transition-opacity"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                </div>`;
+            });
+            lucide.createIcons();
+        }
+
+        function renderAdminJoinRequests() {
+            const el = document.getElementById('admin-join-requests-list');
+            el.innerHTML = '';
+            if(joinRequestsDB.length === 0) {
+                el.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-400">لا توجد طلبات جديدة.</td></tr>';
+                return;
+            }
+            joinRequestsDB.forEach(r => {
+                el.innerHTML += `
+                <tr class="hover:bg-gray-50 border-b border-gray-100">
+                    <td class="p-3 font-bold text-brand-brown">${r.name}</td>
+                    <td class="p-3">${r.phone}</td>
+                    <td class="p-3">${r.city}</td>
+                    <td class="p-3 text-xs text-gray-500 max-w-xs truncate" title="${r.reason}">${r.reason}</td>
+                    <td class="p-3 text-xs text-gray-400">${r.date}</td>
+                    <td class="p-3 flex gap-2">
+                        <button class="text-green-500 hover:text-green-600 p-1 bg-green-50 rounded" title="قبول"><i data-lucide="check" class="w-4 h-4"></i></button>
+                        <button class="text-red-500 hover:text-red-600 p-1 bg-red-50 rounded" title="رفض"><i data-lucide="x" class="w-4 h-4"></i></button>
+                    </td>
+                </tr>`;
+            });
+            lucide.createIcons();
+        }
+
+        // --- COMMUNITY FEED LOGIC (MODAL) ---
+        function openCommunity() {
+            document.getElementById('community-modal').classList.remove('hidden');
+            document.getElementById('community-modal').classList.add('block');
+            document.body.style.overflow = 'hidden'; // Disable scroll on body
+            
+            // Set header info if logged in
+            if(currentUser) {
+                document.getElementById('comm-header-name').innerText = currentUser.name;
+                document.getElementById('comm-header-img').src = currentUser.img;
+                document.getElementById('comm-sidebar-name').innerText = currentUser.name;
+                document.getElementById('comm-sidebar-img').src = currentUser.img;
+            } else {
+                document.getElementById('comm-header-name').innerText = "زائر";
+            }
+            
+            renderCommunityFeed();
+        }
+
+        function closeCommunity() {
+            document.getElementById('community-modal').classList.add('hidden');
+            document.getElementById('community-modal').classList.remove('block');
+            document.body.style.overflow = 'auto'; // Enable scroll
+        }
+
+        function renderCommunityFeed() {
+            const el = document.getElementById('feed-stream');
+            if(!el) return;
+            el.innerHTML = '';
+            
+            // Filter approved posts only
+            const approvedPosts = communityPosts.filter(p => p.approved);
+            
+            if(approvedPosts.length === 0) {
+                el.innerHTML = '<div class="text-center text-gray-400 py-8">لا توجد منشورات بعد. كن أول من يشارك!</div>';
+                return;
+            }
+
+            approvedPosts.forEach(post => {
+                // Generate Comments HTML
+                let commentsHtml = '';
+                if(post.comments && post.comments.length > 0) {
+                    post.comments.forEach(c => {
+                        commentsHtml += `
+                            <div class="bg-gray-50 p-2 rounded-lg text-xs mb-1">
+                                <span class="font-bold text-brand-brown">${c.user}:</span> ${c.text}
+                            </div>
+                        `;
+                    });
+                }
+
+                el.innerHTML += `
+                <div class="bg-white rounded-2xl shadow-sm border border-brand-light p-6 animate-float" style="animation-duration: 4s">
+                    <div class="flex items-center gap-3 mb-4">
+                        <img src="${post.userImg}" class="w-10 h-10 rounded-full object-cover border border-brand-light">
+                        <div>
+                            <h4 class="font-bold text-brand-brown text-sm">${post.userName}</h4>
+                            <span class="text-xs text-gray-400">${post.timestamp}</span>
+                        </div>
+                    </div>
+                    <p class="text-brand-brown leading-relaxed mb-4 text-sm">${post.content}</p>
+                    ${post.image ? `<img src="${post.image}" class="w-full h-64 object-cover rounded-xl mb-4 border border-gray-100">` : ''}
+                    <div class="flex items-center gap-4 pt-4 border-t border-gray-50">
+                        <button onclick="toggleLike(${post.id})" class="flex items-center gap-2 text-gray-400 hover:text-red-500 transition-colors">
+                            <i data-lucide="heart" class="w-5 h-5"></i> <span class="text-xs font-bold">${post.likes}</span>
+                        </button>
+                        <button onclick="toggleComments(${post.id})" class="flex items-center gap-2 text-gray-400 hover:text-brand-gold transition-colors">
+                            <i data-lucide="message-circle" class="w-5 h-5"></i> <span class="text-xs font-bold">تعليق (${post.comments ? post.comments.length : 0})</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Comments Section -->
+                    <div id="comments-sec-${post.id}" class="hidden mt-4 border-t border-gray-100 pt-3">
+                        <div class="space-y-2 mb-3 max-h-32 overflow-y-auto custom-scrollbar">
+                            ${commentsHtml}
+                        </div>
+                        <div class="flex gap-2">
+                            <input type="text" id="comment-input-${post.id}" class="w-full bg-gray-50 border rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-brand-gold" placeholder="أضف تعليقاً...">
+                            <button onclick="submitComment(${post.id})" class="text-brand-gold hover:text-brand-brown"><i data-lucide="send" class="w-4 h-4"></i></button>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            lucide.createIcons();
+        }
+
+        function toggleLike(id) {
+            const post = communityPosts.find(p => p.id === id);
+            if(post) {
+                post.likes++;
+                renderCommunityFeed();
+            }
+        }
+
+        function toggleComments(id) {
+            const sec = document.getElementById(`comments-sec-${id}`);
+            sec.classList.toggle('hidden');
+        }
+
+        function submitComment(id) {
+            if(!currentUser) {
+                alert('يرجى تسجيل الدخول للتعليق.');
+                return;
+            }
+            const input = document.getElementById(`comment-input-${id}`);
+            const text = input.value;
+            if(!text) return;
+
+            const post = communityPosts.find(p => p.id === id);
+            if(post) {
+                if(!post.comments) post.comments = [];
+                post.comments.push({
+                    user: currentUser.name,
+                    text: text
+                });
+                renderCommunityFeed();
+                // Keep comments open after render (simple hack: render closes it by default, so we reopen)
+                setTimeout(() => toggleComments(id), 100); 
+            }
+        }
+
+        function previewPostImage(input) {
+            const preview = document.getElementById('post-img-preview');
+            const img = preview.querySelector('img');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    img.src = e.target.result;
+                    preview.classList.remove('hidden');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function clearPostImage() {
+            document.getElementById('post-image').value = "";
+            document.getElementById('post-img-preview').classList.add('hidden');
+        }
+
+        function submitPost() {
+            if(!currentUser) {
+                alert('عذراً، يجب تسجيل الدخول للمشاركة في المجتمع.');
+                toggleModal('auth-portal');
+                return;
+            }
+
+            const content = document.getElementById('post-content').value;
+            const imgInput = document.getElementById('post-image');
+            
+            if(!content && (!imgInput.files || imgInput.files.length === 0)) {
+                alert('يرجى كتابة نص أو رفع صورة');
+                return;
+            }
+
+            // Simulate Image Upload (Convert to Base64 for demo)
+            let imgUrl = "";
+            const processPost = () => {
+                const newPost = {
+                    id: Date.now(),
+                    userId: currentUser.id,
+                    userName: currentUser.name,
+                    userImg: currentUser.img,
+                    content: content,
+                    image: imgUrl,
+                    timestamp: "الآن",
+                    approved: false, // Requires Admin Approval
+                    likes: 0,
+                    comments: []
+                };
+                
+                communityPosts.unshift(newPost); // Add to top
+                
+                // Clear Form
+                document.getElementById('post-content').value = "";
+                clearPostImage();
+                
+                alert('شكراً لك يا نشمي! تم إرسال منشورك للمراجعة من قبل الإدارة.');
+            };
+
+            if (imgInput.files && imgInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imgUrl = e.target.result;
+                    processPost();
+                }
+                reader.readAsDataURL(imgInput.files[0]);
+            } else {
+                processPost();
+            }
+        }
+
+        // --- NOTIFICATIONS LOGIC ---
+        function toggleUserNotifications() {
+            const dropdown = document.getElementById('user-notifications-dropdown');
+            dropdown.classList.toggle('hidden');
+            // Clear badge
+            document.getElementById('notif-badge').classList.add('hidden');
+        }
+
+        function sendNotification() {
+            const msg = document.getElementById('admin-notif-msg').value;
+            if(!msg) return;
+
+            const notif = {
+                id: Date.now(),
+                text: msg,
+                date: new Date().toLocaleDateString('ar-JO')
+            };
+
+            adminNotifications.unshift(notif);
+            document.getElementById('admin-notif-msg').value = '';
+            
+            renderAdminNotificationsLog();
+            updateUserNotifications(); // Push to users (simulated)
+            
+            alert('تم إرسال الإشعار لجميع المستخدمين بنجاح');
+        }
+
+        function renderAdminNotificationsLog() {
+            const el = document.getElementById('admin-notif-log');
+            el.innerHTML = '';
+            adminNotifications.forEach(n => {
+                el.innerHTML += `<div class="p-2 bg-gray-50 rounded text-xs border border-gray-200 flex justify-between"><span>${n.text}</span><span class="text-gray-400">${n.date}</span></div>`;
+            });
+        }
+
+        function updateUserNotifications() {
+            const list = document.getElementById('user-notif-list');
+            const badge = document.getElementById('notif-badge');
+            
+            if(adminNotifications.length > 0) {
+                list.innerHTML = '';
+                adminNotifications.forEach(n => {
+                    list.innerHTML += `<div class="p-2 border-b border-gray-100 last:border-0 hover:bg-gray-50"><p class="text-brand-brown font-bold">${n.text}</p><span class="text-[10px] text-gray-400">${n.date}</span></div>`;
+                });
+                badge.classList.remove('hidden');
+            }
+        }
+
+        // --- ADMIN COMMUNITY LOGIC ---
+        function renderAdminCommunity() {
+            const pendingEl = document.getElementById('admin-pending-posts');
+            const activeEl = document.getElementById('admin-active-posts');
+            
+            pendingEl.innerHTML = '';
+            activeEl.innerHTML = '';
+
+            const pendingPosts = communityPosts.filter(p => !p.approved);
+            const activePosts = communityPosts.filter(p => p.approved);
+
+            if(pendingPosts.length === 0) pendingEl.innerHTML = '<p class="text-xs text-gray-400">لا توجد منشورات معلقة.</p>';
+            
+            pendingPosts.forEach(p => {
+                pendingEl.innerHTML += `
+                <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-xs font-bold text-brand-brown">${p.userName}</span>
+                        <span class="text-[10px] text-gray-400">${p.timestamp}</span>
+                    </div>
+                    <p class="text-xs text-gray-600 mb-2">${p.content}</p>
+                    ${p.image ? '<span class="text-[10px] text-brand-gold block mb-2">[صورة مرفقة]</span>' : ''}
+                    <div class="flex gap-2">
+                        <button onclick="approvePost(${p.id})" class="flex-1 bg-green-500 text-white text-xs py-1 rounded hover:bg-green-600">موافقة</button>
+                        <button onclick="rejectPost(${p.id})" class="flex-1 bg-red-500 text-white text-xs py-1 rounded hover:bg-red-600">رفض</button>
+                    </div>
+                </div>`;
+            });
+
+            activePosts.forEach(p => {
+                activeEl.innerHTML += `
+                <div class="flex justify-between items-center p-3 border-b border-gray-100">
+                    <div class="truncate w-2/3">
+                        <span class="block text-xs font-bold text-brand-brown">${p.userName}</span>
+                        <span class="block text-[10px] text-gray-500 truncate">${p.content}</span>
+                    </div>
+                    <button onclick="deletePost(${p.id})" class="text-red-400 hover:text-red-600"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                </div>`;
+            });
+            lucide.createIcons();
+        }
+
+        function approvePost(id) {
+            const post = communityPosts.find(p => p.id === id);
+            if(post) {
+                post.approved = true;
+                renderAdminCommunity();
+                renderCommunityFeed(); // Update public view if open
+            }
+        }
+
+        function rejectPost(id) {
+            if(confirm('هل أنت متأكد من رفض هذا المنشور؟')) {
+                communityPosts = communityPosts.filter(p => p.id !== id);
+                renderAdminCommunity();
+            }
+        }
+
+        function deletePost(id) {
+            if(confirm('هل أنت متأكد من حذف هذا المنشور؟')) {
+                communityPosts = communityPosts.filter(p => p.id !== id);
+                renderAdminCommunity(); // Update Admin
+                renderCommunityFeed(); // Update Public
+            }
+        }
+
+        // Gemini API Configuration
+        const apiKey = ""; // API Key provided by runtime
+        
+        async function callAI(prompt, sys) {
+            const model = 'gemini-2.5-flash-preview-09-2025';
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                systemInstruction: { parts: [{ text: sys }] }
+            };
+
+            // Exponential Backoff Strategy
+            const delays = [1000, 2000, 4000, 8000, 16000];
+            for (let i = 0; i <= delays.length; i++) {
+                try {
+                    const res = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!res.ok) throw new Error(res.statusText);
+
+                    const data = await res.json();
+                    return data.candidates?.[0]?.content?.parts?.[0]?.text || "لم أتمكن من العثور على إجابة، حاول مرة أخرى.";
+                } catch (error) {
+                    if (i === delays.length) return "عذراً، الخدمة مشغولة حالياً. يرجى المحاولة لاحقاً.";
+                    await new Promise(resolve => setTimeout(resolve, delays[i]));
+                }
+            }
+        }
+
+        async function askHakawati() {
+            const q = document.getElementById('hakawati-q').value;
+            const el = document.getElementById('hakawati-res');
+            if(!q) return;
+            el.innerHTML = '<span class="loading-dots">جاري التفكير</span>';
+            // Specific System Prompt for Hakawati
+            el.innerText = await callAI(`السؤال: ${q}`, "أنت النشمي، خبير في التراث الأردني والتاريخ والعادات البدوية. تحدث باللهجة الأردنية الودودة والمحترمة. جاوب باختصار وفائدة.");
+        }
+        
+        async function generateNameStory() {
+            const name = document.getElementById('visitor-name').value;
+            const res = document.getElementById('name-story-result');
+            if(!name) return;
+            res.classList.remove('hidden');
+            res.innerHTML = '<span class="loading-dots">جاري النسج</span>';
+            // Specific System Prompt for Names
+            res.innerText = await callAI(`اكتب وسماً تراثياً أردنياً وقصة قصيرة لاسم: ${name}`, "أنت خبير في معاني الأسماء العربية وارتباطها بالتراث الأردني والعشائر. اربط الاسم بصفة من صفات النشامى أو معلم أردني.");
+        }
+
+        async function generateTrip() {
+            const c = document.getElementById('trip-city').value;
+            const el = document.getElementById('trip-result');
+            if(!c) return;
+            el.classList.remove('hidden');
+            el.innerHTML = '<span class="loading-dots">جاري التخطيط</span>';
+            // Specific System Prompt for Trip Planning
+            el.innerText = await callAI(`خطة رحلة سياحية في ${c}`, "أنت دليل سياحي أردني محلي. صمم جداول سياحية تبرز الجواهر الخفية والتجارب الأصيلة في المدن الأردنية، وركز على الأماكن غير التقليدية.");
+        }
+        
+        async function generateRecipe() {
+            const i = document.getElementById('kitchen-ing').value;
+            const el = document.getElementById('kitchen-result');
+            if(!i) return;
+            el.classList.remove('hidden');
+            el.innerHTML = '<span class="loading-dots">جاري التحضير</span>';
+            // Specific System Prompt for Cooking
+            el.innerText = await callAI(`اقترح طبخة أردنية تعتمد على: ${i}`, "أنت طاهٍ أردني خبير في المطبخ التراثي (المنسف، الرشوف، المكمورة، الزرب). اقترح وصفات تعتمد على المكونات المعطاة بنفس تراثي.");
+        }
+
+        async function generatePoem() {
+            const t = document.getElementById('poet-topic').value;
+            const el = document.getElementById('poet-result');
+            if(!t) return;
+            el.classList.remove('hidden');
+            el.innerHTML = '<span class="loading-dots">جاري النظم</span>';
+            // Specific System Prompt for Poetry
+            el.innerText = await callAI(`اكتب شعراً نبطياً قصيراً عن: ${t}`, "أنت شاعر ربابة أردني بدوي. انظم شعراً نبطياً قصيراً وموزوناً يعبر عن النخوة والكرم والبادية.");
+        }
+
+        async function translateToDialect() {
+            const t = document.getElementById('translate-text').value;
+            const el = document.getElementById('translate-result');
+            if(!t) return;
+            el.classList.remove('hidden');
+            el.innerHTML = '<span class="loading-dots">جاري الترجمة</span>';
+            // Specific System Prompt for Translation
+            el.innerText = await callAI(`ترجم هذه العبارة إلى اللهجة الأردنية البدوية/الفلاحية القحة: "${t}"`, "أنت مترجم محترف للهجة الأردنية. حول النص الفصيح إلى لهجة أردنية قحّة مع استخدام مفردات مثل (يا هلا، يا خوي، السنعة، وشلونك).");
+        }
+        
+        async function recommendProverb() {
+            const t = document.getElementById('proverb-topic').value;
+            const el = document.getElementById('proverb-result');
+            if(!t) return;
+            el.classList.remove('hidden');
+            el.innerHTML = '<span class="loading-dots">جاري البحث</span>';
+            // Specific System Prompt for Proverbs
+            el.innerText = await callAI(`أعطني مثلاً شعبياً أردنياً يتعلق بـ: "${t}" مع الشرح`, "أنت حكيم الأمثال الشعبية الأردنية. أعط مثلاً شعبياً أردنياً دقيقاً يناسب الموقف مع شرح موجز لمعناه.");
+        }
+
+        // Quiz
+        let qIdx = 0, score = 0;
+        function startQuiz() {
+            document.getElementById('quiz-start').classList.add('hidden');
+            document.getElementById('quiz-question').classList.remove('hidden');
+            qIdx = 0; score = 0; renderQ();
+        }
+        function renderQ() {
+            const q = questionPool[qIdx];
+            document.getElementById('q-text').innerText = q.q;
+            const div = document.getElementById('q-options');
+            div.innerHTML = '';
+            q.options.forEach((o, i) => {
+                div.innerHTML += `<button onclick="ans(${i})" class="w-full p-2 border rounded hover:bg-gray-50 text-right">${o}</button>`;
+            });
+        }
+        function ans(i) {
+            if(i === questionPool[qIdx].correct) score++;
+            if(++qIdx < 3) renderQ(); // Just 3 qs for demo
+            else {
+                document.getElementById('quiz-question').classList.add('hidden');
+                document.getElementById('quiz-result').classList.remove('hidden');
+                document.getElementById('final-score').innerText = score;
+                document.getElementById('final-title').innerText = score === 3 ? "خبير تراث 👑" : "محب للتراث ❤️";
+            }
+        }
+        function resetQuiz() {
+            document.getElementById('quiz-result').classList.add('hidden');
+            startQuiz();
+        }
+        
+        // Pledge
+        let pledgeCount = 1250, hasPledged = false;
+        function handlePledge() {
+            if(!hasPledged) {
+                document.getElementById('pledge-count').innerText = (++pledgeCount).toLocaleString();
+                const btn = document.getElementById('pledge-btn');
+                btn.innerHTML = `<i data-lucide="check" class="w-5 h-5"></i> تم التوقيع`;
+                btn.classList.replace('bg-transparent', 'bg-brand-gold');
+                btn.classList.replace('text-brand-gold', 'text-white');
+                hasPledged = true;
+                lucide.createIcons();
+            }
+        }
+
+        // Admin & Auth
+        
+        // Updated Admin Structure for Blocking feature
+        // id: { name, blocked }
+        let adminUsersDB = [
+            { id: "101", name: "معاذ", role: "super", blocked: false }, // Super Admin
+            { id: "102", name: "ايهم", role: "admin", blocked: false },
+            { id: "103", name: "فرح", role: "admin", blocked: false },
+            { id: "104", name: "سجود", role: "admin", blocked: false },
+            { id: "105", name: "الاء", role: "admin", blocked: false },
+            { id: "106", name: "رؤى", role: "admin", blocked: false },
+            { id: "107", name: "نور", role: "admin", blocked: false }
+        ];
+
+        let currentAdmin = null;
+
+        function toggleModal(id) {
+            const el = document.getElementById(id);
+            el.classList.toggle('hidden');
+            el.classList.toggle('flex');
+        }
+        
+        function loginAdminPortal() {
+             const id = document.getElementById('portal-admin-id').value;
+             const pass = document.getElementById('portal-admin-pass').value;
+             
+             // Find admin user
+             const admin = adminUsersDB.find(u => u.id === id);
+
+             if (pass === "2026" && admin) {
+                // Check if blocked
+                if (admin.blocked) {
+                    alert('عذراً، تم إيقاف حسابك الإداري. يرجى مراجعة المشرف العام (معاذ).');
+                    return;
+                }
+
+                currentAdmin = admin;
+                toggleModal('auth-portal');
+                
+                // Show/Hide Super Admin Tab
+                if (admin.id === "101") {
+                    document.getElementById('btn-admin-team').classList.remove('hidden');
+                    document.getElementById('btn-admin-team').classList.add('flex');
+                } else {
+                    document.getElementById('btn-admin-team').classList.add('hidden');
+                    document.getElementById('btn-admin-team').classList.remove('flex');
+                }
+
+                // Personalized Greeting
+                document.getElementById('admin-welcome-msg').innerText = `أهلاً بك: ${admin.name}`;
+
+                document.getElementById('admin-dashboard').classList.remove('hidden');
+                document.getElementById('admin-dashboard').classList.add('flex');
+                
+                // Initialize Views
+                renderAdminEvents();
+                // FIXED: Call the function only if it exists
+                if (typeof renderAdminPartners === 'function') {
+                    renderAdminPartners();
+                }
+                if (typeof renderAdminCommunity === 'function') {
+                    renderAdminCommunity();
+                }
+                if(admin.id === "101") {
+                    renderAdminTeamManagement();
+                    renderAccessControl();
+                }
+                // New Views
+                renderAdminComplaints();
+                renderAdminJoinRequests();
+                renderAdminStories(); // NEW
+
+                alert(`مرحباً بك يا ${admin.name} في لوحة التحكم!`);
+             } else {
+                alert('خطأ في المعرف أو كلمة المرور');
+             }
+        }
+        
+        // --- SUPER ADMIN: TEAM MANAGEMENT ---
+        function renderAdminTeamManagement() {
+            const el = document.getElementById('admin-team-list');
+            el.innerHTML = '';
+            teamMembers.forEach((m, i) => {
+                el.innerHTML += `
+                <div class="flex items-center justify-between p-3 border-b border-gray-100 last:border-0">
+                    <div>
+                        <p class="font-bold text-brand-brown text-sm">${m.name}</p>
+                        <p class="text-xs text-brand-gold">${m.role}</p>
+                    </div>
+                    <button onclick="deleteTeamMember(${i})" class="text-red-400 hover:text-red-600 bg-red-50 p-2 rounded-lg transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                </div>`;
+            });
+            lucide.createIcons();
+        }
+
+        function handleAddTeamMember() {
+            const name = document.getElementById('new-team-name').value;
+            const role = document.getElementById('new-team-role').value;
+            const desc = document.getElementById('new-team-desc').value;
+
+            if(!name || !role) { alert('يرجى تعبئة الاسم والمسمى الوظيفي'); return; }
+
+            teamMembers.push({ name, role, desc });
+            renderTeam(); // Update Public Site
+            renderAdminTeamManagement(); // Update Admin Panel
+            
+            // Clear
+            document.getElementById('new-team-name').value = '';
+            document.getElementById('new-team-role').value = '';
+            document.getElementById('new-team-desc').value = '';
+            alert('تمت الإضافة بنجاح');
+        }
+
+        function deleteTeamMember(idx) {
+            if(confirm('هل أنت متأكد من حذف هذا العضو من الفريق؟')) {
+                teamMembers.splice(idx, 1);
+                renderTeam(); // Update Public
+                renderAdminTeamManagement(); // Update Admin
+            }
+        }
+
+        // --- SUPER ADMIN: ACCESS CONTROL ---
+        function renderAccessControl() {
+            // 1. Admins List (Exclude Muath 101 from being blocked)
+            const adminListEl = document.getElementById('admin-users-control-list');
+            adminListEl.innerHTML = '';
+            adminUsersDB.forEach(u => {
+                if (u.id === "101") return; // Cannot block Muath
+                const statusColor = u.blocked ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600';
+                const statusText = u.blocked ? 'محظور' : 'نشط';
+                const btnText = u.blocked ? 'فك الحظر' : 'حظر';
+                const btnColor = u.blocked ? 'text-green-600 hover:bg-green-50' : 'text-red-600 hover:bg-red-50';
+                
+                adminListEl.innerHTML += `
+                <div class="flex items-center justify-between p-2 border rounded-lg bg-gray-50">
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold text-sm">${u.name}</span>
+                        <span class="text-xs bg-gray-200 px-2 rounded">${u.id}</span>
+                        <span class="text-[10px] px-2 rounded-full ${statusColor}">${statusText}</span>
+                    </div>
+                    <button onclick="toggleBlockAdmin('${u.id}')" class="text-xs font-bold px-3 py-1 rounded border border-gray-200 ${btnColor}">${btnText}</button>
+                </div>`;
+            });
+
+            // 2. Volunteers List
+            const volListEl = document.getElementById('vol-users-control-list');
+            volListEl.innerHTML = '';
+            if (usersDB.length === 0) {
+                volListEl.innerHTML = '<p class="text-xs text-gray-400 text-center">لا يوجد متطوعين مسجلين بعد.</p>';
+            }
+            usersDB.forEach(u => {
+                const isBlocked = u.blocked === true; // Handle undefined as false
+                const statusColor = isBlocked ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600';
+                const statusText = isBlocked ? 'محظور' : 'نشط';
+                const btnText = isBlocked ? 'فك الحظر' : 'حظر';
+                const btnColor = isBlocked ? 'text-green-600 hover:bg-green-50' : 'text-red-600 hover:bg-red-50';
+
+                volListEl.innerHTML += `
+                <div class="flex items-center justify-between p-2 border rounded-lg bg-gray-50 mb-2">
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold text-sm truncate w-24">${u.name}</span>
+                        <span class="text-[10px] px-2 rounded-full ${statusColor}">${statusText}</span>
+                    </div>
+                    <button onclick="toggleBlockVolunteer(${u.id})" class="text-xs font-bold px-3 py-1 rounded border border-gray-200 ${btnColor}">${btnText}</button>
+                </div>`;
+            });
+        }
+
+        function toggleBlockAdmin(id) {
+            const user = adminUsersDB.find(u => u.id === id);
+            if(user) {
+                user.blocked = !user.blocked;
+                renderAccessControl();
+            }
+        }
+
+        function toggleBlockVolunteer(id) {
+            const user = usersDB.find(u => u.id === id);
+            if(user) {
+                user.blocked = !user.blocked ? true : false;
+                renderAccessControl();
+            }
+        }
+
+        // --- NEW AUTH LOGIC ---
+
+        function showVolunteerAuth() {
+            document.getElementById('auth-selection').classList.add('hidden');
+            document.getElementById('volunteer-forms').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function hideVolunteerAuth() {
+            document.getElementById('volunteer-forms').classList.add('hidden');
+            document.getElementById('auth-selection').classList.remove('hidden');
+        }
+
+        function switchAuthTab(tab) {
+            const loginView = document.getElementById('view-login');
+            const regView = document.getElementById('view-register');
+            const loginTab = document.getElementById('tab-login');
+            const regTab = document.getElementById('tab-register');
+
+            if(tab === 'login') {
+                loginView.classList.remove('hidden');
+                regView.classList.add('hidden');
+                loginTab.classList.add('border-b-2', 'border-brand-brown', 'text-brand-brown');
+                loginTab.classList.remove('text-gray-400');
+                regTab.classList.remove('border-b-2', 'border-brand-brown', 'text-brand-brown');
+                regTab.classList.add('text-gray-400');
+            } else {
+                loginView.classList.add('hidden');
+                regView.classList.remove('hidden');
+                regTab.classList.add('border-b-2', 'border-brand-brown', 'text-brand-brown');
+                regTab.classList.remove('text-gray-400');
+                loginTab.classList.remove('border-b-2', 'border-brand-brown', 'text-brand-brown');
+                loginTab.classList.add('text-gray-400');
+            }
+        }
+
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.getElementById('preview-photo');
+                    img.src = e.target.result;
+                    img.classList.remove('hidden');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // AUTO SUBMIT TO GOOGLE FORM
+        async function submitToGoogleForm(data) {
+            const { formActionURL, fields } = GOOGLE_FORM_CONFIG;
+            
+            const formData = new FormData();
+            formData.append(fields.name, data.name);
+            formData.append(fields.phone, data.phone);
+            formData.append(fields.email, data.identifier.includes('@') ? data.identifier : ''); 
+            formData.append(fields.dob, data.dob); // Date field
+            formData.append(fields.bio, data.bio + (data.location ? " - السكن: " + data.location : "")); // ندمج السكن مع النبذة لأن الفورم لا يحتوي حقل سكن
+
+            try {
+                // Using no-cors mode (Standard for Google Forms via JS)
+                await fetch(formActionURL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: formData
+                });
+                console.log('تم إرسال البيانات بنجاح إلى نموذج جوجل.');
+            } catch (error) {
+                console.error('خطأ في الاتصال:', error);
+            }
+        }
+
+        function performVolunteerRegister() {
+            const name = document.getElementById('reg-fullname-new').value;
+            const email = document.getElementById('reg-email-new').value;
+            const phone = document.getElementById('reg-phone-new').value;
+            const pass = document.getElementById('reg-pass-new').value;
+            const bio = document.getElementById('reg-bio-new').value;
+            const address = document.getElementById('reg-address-new').value;
+            const dob = document.getElementById('reg-dob-new').value; // Date
+            const imgEl = document.getElementById('preview-photo');
+            
+            if(!name || !pass || !phone) {
+                alert('يرجى تعبئة البيانات الأساسية (الاسم، الهاتف، كلمة المرور)');
+                return;
+            }
+
+            const newUser = {
+                id: Date.now(),
+                name: name,
+                identifier: email || phone, 
+                phone: phone,
+                pass: pass,
+                bio: bio || "متطوع جديد",
+                location: address || "الأردن",
+                dob: dob,
+                img: imgEl.src || "https://ui-avatars.com/api/?name=" + encodeURIComponent(name) + "&background=C5A065&color=fff"
+            };
+
+            usersDB.push(newUser);
+            currentUser = newUser;
+            updateUIForLogin();
+            
+            // 1. Auto Submit Feedback
+            const statusDiv = document.getElementById('form-status');
+            statusDiv.innerHTML = '<span class="text-brand-gold animate-pulse">جاري حفظ البيانات في السجلات الرسمية...</span>';
+            statusDiv.classList.remove('hidden');
+            
+            // Perform Submission
+            submitToGoogleForm(newUser);
+
+            // 2. Success Feedback (Delay slightly to simulate process)
+            setTimeout(() => {
+                alert('تم إنشاء الحساب وحفظ البيانات في قاعدة البيانات الرسمية بنجاح!');
+                toggleModal('auth-portal');
+                statusDiv.classList.add('hidden');
+            }, 2000);
+        }
+
+        function performVolunteerLogin() {
+            const input = document.getElementById('login-identifier').value;
+            const pass = document.getElementById('login-password').value;
+
+            // Simple search in dummy DB
+            // Check against identifier (email/phone) or name
+            const user = usersDB.find(u => 
+                (u.identifier === input || u.name === input || u.phone === input) && u.pass === pass
+            );
+
+            if(user) {
+                // CHECK IF BLOCKED
+                if (user.blocked) {
+                    alert('عذراً، تم إيقاف حسابك من قبل الإدارة. يرجى التواصل مع الدعم الفني.');
+                    return;
+                }
+
+                currentUser = user;
+                updateUIForLogin();
+                toggleModal('auth-portal');
+                alert('مرحباً بعودتك يا ' + user.name);
+            } else {
+                alert('بيانات الدخول غير صحيحة، أو أنك لم تنشئ حساباً بعد.');
+            }
+        }
+
+        function updateUIForLogin() {
+            if(!currentUser) return;
+            const btn = document.getElementById('nav-login-btn');
+            // Change button to Profile trigger
+            btn.innerHTML = `<img src="${currentUser.img}" class="w-6 h-6 rounded-full border border-white"> ${currentUser.name.split(' ')[0]}`;
+            btn.onclick = () => toggleModal('profile-modal'); // Override default click
+            
+            // Update Profile Modal Data
+            document.getElementById('profile-name-display').innerText = currentUser.name;
+            document.getElementById('profile-loc-display').innerHTML = `<i data-lucide="map-pin" class="w-3 h-3"></i> ${currentUser.location}`;
+            document.getElementById('profile-bio-display').innerText = currentUser.bio;
+            document.getElementById('profile-img-display').src = currentUser.img;
+            
+            // Update Community Post Avatar
+            const postAvatar = document.getElementById('current-user-avatar');
+            if(postAvatar) {
+                postAvatar.style.backgroundImage = `url('${currentUser.img}')`;
+            }
+
+            lucide.createIcons();
+        }
+
+        function logoutVolunteer() {
+            if(!currentUser) return;
+            
+            // Clear user
+            currentUser = null;
+            
+            // Reset Nav Button
+            const btn = document.getElementById('nav-login-btn');
+            btn.innerHTML = `<i data-lucide="log-in" class="w-4 h-4"></i> تسجيل الدخول`;
+            btn.onclick = () => toggleModal('auth-portal');
+            
+            // Close Modal
+            toggleModal('profile-modal');
+            
+            // Feedback
+            alert('تم تسجيل الخروج بنجاح. نراك قريباً!');
+            
+            // Reset Community Avatar
+            const postAvatar = document.getElementById('current-user-avatar');
+            if(postAvatar) {
+                postAvatar.style.backgroundImage = `url('https://via.placeholder.com/150')`;
+            }
+
+            lucide.createIcons();
+        }
+
+        // --- END NEW AUTH LOGIC ---
+
+        function logoutAdmin() {
+            currentAdmin = null;
+            document.getElementById('admin-dashboard').classList.add('hidden');
+            document.getElementById('admin-dashboard').classList.remove('flex');
+        }
+        function switchAdminTab(t) {
+            ['dashboard','opportunities','ticker','messages','partners','team', 'community', 'notifications', 'join-requests', 'complaints', 'stories'].forEach(x => document.getElementById(`admin-tab-${x}`).classList.add('hidden'));
+            document.getElementById(`admin-tab-${t}`).classList.remove('hidden');
+            
+            // Refresh content if needed
+            if(t === 'partners') {
+                if (typeof renderAdminPartners === 'function') renderAdminPartners();
+            }
+            if(t === 'team') {
+                renderAdminTeamManagement();
+                renderAccessControl();
+            }
+            if(t === 'community') {
+                renderAdminCommunity();
+            }
+            if(t === 'complaints') {
+                renderAdminComplaints();
+            }
+            if(t === 'join-requests') {
+                renderAdminJoinRequests();
+            }
+            if(t === 'stories') {
+                renderAdminStories();
+            }
+        }
+        function renderAdminEvents() {
+            const l = document.getElementById('admin-events-list');
+            l.innerHTML = '';
+            eventsList.forEach(e => l.innerHTML += `<div class="p-2 border rounded flex justify-between"><span>${e.title}</span><span class="text-red-500 cursor-pointer">حذف</span></div>`);
+            document.getElementById('admin-event-count').innerText = eventsList.length;
+        }
+        function addEvent(e) {
+            e.preventDefault();
+            // Just simulation
+            alert('تمت الإضافة');
+        }
+        function handleRegister(e) {
+            e.preventDefault();
+            alert('تم استلام الطلب!');
+        }
+
+        // Audio (YouTube API Implementation)
+        var player;
+        var youtubeReady = false;
+
+        // 1. This code loads the IFrame Player API code asynchronously.
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        // 2. This function creates an <iframe> (and YouTube player) after the API code downloads.
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('youtube-audio-container', {
+                height: '0',
+                width: '0',
+                videoId: '7WAVRH690x4', // New Song ID from your link
+                playerVars: {
+                    'autoplay': 0,
+                    'controls': 0,
+                    'disablekb': 1,
+                    'fs': 0,
+                    'loop': 1,
+                    'modestbranding': 1,
+                    'playlist': '7WAVRH690x4', // Required for loop
+                    'playsinline': 1
+                },
+                events: {
+                    'onReady': function(event) {
+                        youtubeReady = true;
+                        // Set volume (optional)
+                        event.target.setVolume(70);
+                    }
+                }
+            });
+        }
+
+        let playing = false;
+        function toggleAudio() {
+            const b = document.getElementById('audio-btn');
+            
+            if (!youtubeReady) {
+                // If clicked before YouTube is ready
+                b.innerHTML = '<span class="animate-spin inline-block">⏳</span>';
+                setTimeout(() => {
+                    b.innerHTML = '<i data-lucide="music" class="w-5 h-5"></i>';
+                    lucide.createIcons();
+                    toggleAudio(); // Try again
+                }, 1500);
+                return;
+            }
+
+            if(playing) { 
+                player.pauseVideo(); 
+                b.classList.remove('bg-brand-gold', 'text-white'); 
+            } else { 
+                player.playVideo(); 
+                b.classList.add('bg-brand-gold', 'text-white'); 
+            }
+            playing = !playing;
+        }
+        
+        // Memory Game Logic Fix
+        const memoryIcons = ['coffee', 'map', 'music', 'utensils', 'camera', 'anchor'];
+        let flippedCards = [];
+        let matchedPairs = 0;
+        
+        function initMemoryGame() {
+            const board = document.getElementById('memory-game');
+            board.innerHTML = '';
+            matchedPairs = 0;
+            flippedCards = [];
+            const items = [...memoryIcons, ...memoryIcons].sort(() => Math.random() - 0.5);
+            items.forEach(icon => {
+                const card = document.createElement('div');
+                card.className = 'game-card w-16 h-16 relative cursor-pointer transform-style-3d transition-transform duration-500';
+                card.dataset.icon = icon;
+                card.onclick = () => flipCard(card);
+                card.innerHTML = `<div class="front absolute w-full h-full bg-[#4A3728] rounded-xl flex items-center justify-center backface-hidden"><i data-lucide="help-circle" class="text-[#C5A065]"></i></div><div class="back absolute w-full h-full bg-[#C5A065] rounded-xl flex items-center justify-center backface-hidden rotate-y-180"><i data-lucide="${icon}" class="text-white"></i></div>`;
+                board.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        function flipCard(card) {
+            // Check if card is already flipped or if 2 cards are already flipped
+            if (card.classList.contains('flipped') || flippedCards.length >= 2) return;
+
+            card.classList.add('flipped');
+            flippedCards.push(card);
+
+            if (flippedCards.length === 2) {
+                setTimeout(checkMatch, 1000);
+            }
+        }
+
+        function checkMatch() {
+            const [c1, c2] = flippedCards;
+            if (c1.dataset.icon === c2.dataset.icon) {
+                matchedPairs++;
+                if (matchedPairs === memoryIcons.length) {
+                    setTimeout(() => alert('🎉 مبروك! ذاكرتك قوية كنشمي أصيل!'), 500);
+                }
+            } else { 
+                c1.classList.remove('flipped'); 
+                c2.classList.remove('flipped'); 
+            }
+            flippedCards = [];
+        }
+
+        // --- MISSING ADMIN PARTNER FUNCTIONS ---
+        // These were causing the ReferenceError
+        function renderAdminPartners() {
+            const el = document.getElementById('admin-partners-list');
+            if(!el) return;
+            el.innerHTML = '';
+            partnersData.forEach((p, i) => {
+                el.innerHTML += `
+                    <div class="flex items-center justify-between p-3 border-b border-gray-100 last:border-0">
+                        <div class="flex items-center gap-3">
+                            ${p.img ? `<img src="${p.img}" class="w-10 h-10 rounded-full object-cover">` : `<div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-[10px]">شعار</div>`}
+                            <span class="font-bold text-brand-brown text-sm">${p.name}</span>
+                        </div>
+                        <button onclick="deletePartner(${i})" class="text-red-400 hover:text-red-600 bg-red-50 p-2 rounded-lg transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    </div>
+                `;
+            });
+            lucide.createIcons();
+        }
+
+        function deletePartner(i) {
+            if(confirm('هل أنت متأكد من حذف هذا الشريك؟')) {
+                partnersData.splice(i, 1);
+                renderPartners(); // Update public
+                renderAdminPartners(); // Update admin
+            }
+        }
+
+        function handleAddPartner() {
+            const nameInput = document.getElementById('new-partner-name');
+            const imgInput = document.getElementById('new-partner-img');
+            const name = nameInput.value;
+            
+            if(!name) { alert('يرجى إدخال اسم الشريك'); return; }
+
+            let imgUrl = '';
+            if (imgInput.files && imgInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imgUrl = e.target.result;
+                    addPartnerToData(name, imgUrl);
+                }
+                reader.readAsDataURL(imgInput.files[0]);
+            } else {
+                addPartnerToData(name, '');
+            }
+        }
+
+        function addPartnerToData(name, img) {
+            partnersData.push({ name, img });
+            renderPartners();
+            renderAdminPartners();
+            document.getElementById('new-partner-name').value = '';
+            document.getElementById('new-partner-img').value = '';
+            alert('تمت إضافة الشريك بنجاح');
+        }
+    </script>
+</body>
+</html>
